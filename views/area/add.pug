@@ -1,0 +1,103 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Add )
+  p.lead.text-success #{caption} : ( เพิ่ม )
+  hr
+  if(findText)
+    a.btn.btn-outline-dark(href="/area/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+    //- a(href="/area/findText?findText="+findText) << BACK
+  else
+    //- a(href="/area/findText?findText=") << BACK
+    a.btn.btn-outline-dark(href="/area/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  form(method='POST' action='/area/add')
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          input(name='findText_', type='hidden', value=findText)
+
+          label.col-form-label.text-primary(for='areaId') Area ID:
+          if(payload)
+            input#areaId.form-control.text-success(value=payload.areaId name="areaId" type='text' placeholder="รหัสพื้นที่เพาะปลูก") 
+          else
+            input#areaId.form-control.text-success(name="areaId" type='text' placeholder="รหัสพื้แปลงเพาะปลูก") 
+        .form-group
+          label.col-form-label.text-primary(for='referId') Refer ID:
+          if(payload)
+            input#referId.form-control.text-success(value=payload.referId name="referId" type='text' placeholder="อ้างอิง") 
+          else
+            input#referId.form-control.text-success(name="referId" type='text' placeholder="อ้างอิง") 
+        .form-group
+          label.col-form-label.text-primary(for='areaName') Area Name:
+          if(payload)
+            input#areaName.form-control.text-success(value=payload.areaName type='text' name ="areaName" placeholder="ชื่อพื้นที่")
+          else
+            input#areaName.form-control.text-success(name="areaName" type='text' placeholder="ชื่อพื้นที่")
+        .form-group
+          label.col-form-label.text-primary(for='village') Village:
+          if(payload)
+            input#village.form-control.text-success(value=payload.village type='text' name ="village" placeholder="หมูบ้าน")
+          else
+            input#village.form-control.text-success(type='text' name ="village" placeholder="หมูบ้าน")
+        .form-group
+          label.col-form-label.text-primary(for='subDistrict') Sub District:
+          if(payload)
+            input#subDistrict.form-control.text-success(value=payload.subDistrict type='text' name ="subDistrict" placeholder="ตำบล")
+          else  
+            input#subDistrict.form-control.text-success(type='text' name ="subDistrict" placeholder="ตำบล")
+        .form-group
+          label.col-form-label.text-primary(for='district') District:
+          if(payload)
+            input#district.form-control.text-success(value=payload.district type='text' name ="district" placeholder="อำเภอ")
+          else
+            input#district.form-control.text-success(type='text' name ="district" placeholder="อำเภอ")
+      .col-md-6
+        .form-group
+          label.col-form-label.text-primary(for='province') Province:
+          if(payload)  
+            input#province.form-control.text-success(value=payload.province type='text' name ="province" placeholder="จังหวัด")
+          else
+            input#province.form-control.text-success(type='text' name ="province" placeholder="จังหวัด")
+        .form-group
+          label.col-form-label.text-primary(for='size') Size:
+          if(payload)  
+            input#size.form-control.text-success(value=payload.size  step='any' type='number' name ="size" placeholder="จำนวนไร่")
+          else
+            input#size.form-control.text-success(type='number' name ="size" placeholder="จำนวนไร่")
+        .form-group
+          label.col-form-label.text-primary(for='register') Register:
+          if(payload)
+            - let registers = new Date(payload.register);
+            - let dd = registers.getDate();
+            - let mm = registers.getMonth()+1;
+            - let yyyy = registers.getFullYear();
+            - dd = (dd < 10 ? '0' : '') + dd;
+            - mm = (mm < 10 ? '0' : '') + mm;
+            - let yyyymmdd = (yyyy+543)+'-'+mm+'-'+dd; 
+            input#register.form-control.text-success(value=yyyymmdd type='date' name ="register" placeholder="วันที่จดทะเบียน")
+          else
+            input#register.form-control.text-success(type='date' name ="register" placeholder="วันที่จดทะเบียน")
+        .form-group
+          label.col-form-label.text-primary(for="notes") Notes :
+          textarea#notes.form-control.text-success(name="notes" rows="3" placeholder="หมายเหตุ.") #{payload.notes}
+        
+        .form-group
+          label.col-form-label.text-primary(for='memberId') Member ID:
+          if(payload)
+            input#register.form-control.text-success(value=payload.memberId type='text' name ="memberId" placeholder="รหัสสมาชิก")
+          else
+            input#register.form-control.text-success(type='text' name ="memberId" placeholder="รหัสสมาชิก")
+        
+        .form-group
+          label.col-form-label.text-primary(for="latitude") LATITUDE :
+          if(payload)
+            input#latitude.form-control.text-success(step='any' value=payload.latitude type='number' name="latitude" placeholder="ละติจูด")
+        .form-group
+          label.col-form-label.text-primary(for="longitude") LONGITUDE :
+          if(payload)
+            input#longitude.form-control.text-success(step='any' value=payload.longitude type='number' name="longitude" placeholder="ลองติจูด")
+
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกเพิ่มแปลงเพาะปลูก

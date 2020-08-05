@@ -1,0 +1,181 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+  //- p=yearResult[0].yearName.yearName
+  //- p=yearResult[1].yearName.yearName
+  .row
+    .col-md-12
+      if yearResult
+        form(method='POST' action='/information/audit')
+          .form-group
+            input(name='_csrf', type='hidden', value=_csrf)
+            label(for="yearName") เลือกเลขที่ปี การเพาะปลูก:
+            select#yearName.form-control.col-md-2(name="yearName")
+              each i in yearResult   
+                if yearName == i.yearName.yearName
+                  option(value = i.yearName.yearName selected)   #{i.yearName.yearName}
+                else
+                  option(value = i.yearName.yearName)   #{i.yearName.yearName}
+          button.col-md-2.btn.btn-success(type='submit') เลือก »
+  .row
+    .col-md-12 
+
+      .table-responsive
+        
+          table.table.hover.bg-gray-800
+
+
+            if allAudit1 && allAudit1.length >0 && allAudit1[0]._id.orders ==1
+              tr
+                th(colspan="2") 
+                  h3 ครั้งที่ # #{allAudit1[0]._id.orders}
+              tr
+                th 
+                  h4.text-success.text-center ผ่าน
+                each val in allAudit1
+                  if val._id.result && val._id.orders==1
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit1                
+                  if val._id.result
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit1                
+                  if val._id.result && val._id.orders==1
+                    td.text-center.text-success=val.totalSizeAction
+              tr
+                th.text-right.text-primary ประมาณผลผลิต (กิโลกร้ม)
+                each val in allAudit1                
+                  if val._id.result && val._id.orders==1
+                    td.text-center.text-success=val.sumEstimate
+              tr
+                th.text-right.text-primary % คะแนนเฉลี่ย 
+                each val in allAudit1               
+                  if val._id.result  && val._id.orders==1
+                    td.text-center.text-success=(val.sumPercentScore/val.countRecord).toFixed(2)
+              tr
+                th 
+                  h4.text-success.text-center ไม่ผ่าน
+                each val in allAudit1
+                  if !val._id.result && val._id.orders==1
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit1                
+                  if !val._id.result && val._id.orders==1
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit1                
+                  if !val._id.result && val._id.orders==1
+                    td.text-center.text-success=val.totalSizeAction
+
+
+
+
+            if allAudit2 && allAudit2.length >0 && allAudit2[0]._id.orders ==2
+              tr
+                th(colspan="2") 
+                  h3 ครั้งที่ # #{allAudit2[0]._id.orders}
+              tr
+                th 
+                  h4.text-success.text-center ผ่าน 
+                each val in allAudit2
+                  if val._id.result && val._id.orders==2
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit2                
+                  if val._id.result
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit2                
+                  if val._id.result && val._id.orders==2
+                    td.text-center.text-success=val.totalSizeAction
+              tr
+                th.text-right.text-primary ประมาณผลผลิต (กิโลกร้ม)
+                each val in allAudit2               
+                  if val._id.result && val._id.orders==2
+                    td.text-center.text-success=val.sumEstimate
+              tr
+                th.text-right.text-primary % คะแนนเฉลี่ย 
+                each val in allAudit2               
+                  if val._id.result  && val._id.orders==2
+                    td.text-center.text-success=(val.sumPercentScore/val.countRecord).toFixed(2)
+              tr
+                th 
+                  h4.text-success.text-center ไม่ผ่าน 
+                each val in allAudit2
+                  if !val._id.result && val._id.orders==2
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit2                
+                  if !val._id.result && val._id.orders==2
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit2                
+                  if !val._id.result && val._id.orders==2
+                    td.text-center.text-success=val.totalSizeAction
+
+
+
+
+            if allAudit3 && allAudit3.length >0 && allAudit3[0]._id.orders ==3
+              tr
+                th(colspan="2") 
+                  h3 ครั้งที่ # #{allAudit3[0]._id.orders}
+              tr
+                th 
+                  h4.text-success.text-center ผ่าน 
+                each val in allAudit3
+                  if val._id.result && val._id.orders==3
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit3                
+                  if val._id.result
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit3                
+                  if val._id.result && val._id.orders==3
+                    td.text-center.text-success=val.totalSizeAction
+              tr
+                th.text-right.text-primary ประมาณผลผลิต (กิโลกร้ม)
+                each val in allAudit3               
+                  if val._id.result && val._id.orders==3
+                    td.text-center.text-success=val.sumEstimate
+              tr
+                th.text-right.text-primary % คะแนนเฉลี่ย 
+                each val in allAudit3               
+                  if val._id.result  && val._id.orders==3
+                    td.text-center.text-success=(val.sumPercentScore/val.countRecord).toFixed(2)
+              tr
+                th 
+                  h4.text-success.text-center ไม่ผ่าน 
+                each val in allAudit3
+                  if !val._id.result && val._id.orders==3
+                    th.text-center.text-success=val._id.plantNameTh
+              tr
+                th.text-right.text-primary จำนวนรายการ (รายการ)
+                each val in allAudit3                
+                  if !val._id.result && val._id.orders==3
+                    td.text-center.text-success=val.countRecord
+              tr
+                th.text-right.text-primary พื้นที่เพาะปลูก (ไร่)
+                each val in allAudit3                
+                  if !val._id.result && val._id.orders==3
+                    td.text-center.text-success=val.totalSizeAction
+
+
+

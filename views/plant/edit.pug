@@ -1,0 +1,38 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Edit )
+  p.lead.text-success #{caption} : ( แก้ไข )
+  hr 
+  //- a(href="/plant/findText?findText="+findText) << BACK
+
+  if(findText)
+    a.btn.btn-outline-dark(href="/plant/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    a.btn.btn-outline-dark(href="/plant/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+
+  form(method='POST' action='/plant/edit/'+ _id +'/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='plantNameTh') PLANT NAME TH:
+          if result
+            input#plantNameTh.form-control.text-success(name="plantNameTh" value=result.plantNameTh type='text' readOnly placeholder="ชื่อไทย พันธุ์พืช") 
+          else
+            input#plantNameTh.form-control.text-success(name="plantNameTh" value='' type='text' readOnly placeholder="ชื่อไทย พันธุ์พืช") 
+        .form-group
+          label.col-form-label.text-primary(for='plantNameEn') PLANT NAME EN:
+          if result
+            input#plantNameEn.form-control.text-success(name="plantNameEn" value=result.plantNameEn type='text' placeholder="ชื่ออังกฤษ พันธุ์พืช")
+          else
+            input#plantNameEn.form-control.text-success(name="plantNameEn" value='' type='text' placeholder="ชื่ออังกฤษ พันธุ์พืช")
+        .form-group
+          label.col-form-label.text-primary(for='notes') NOTES:
+          if result
+            textarea#notes.form-control.text-success(name="notes" rows=3 placeholder="หมายเหตุ") #{result.notes}
+          else
+            textarea#notes.form-control.text-success(name="notes" rows=3 placeholder="หมายเหตุ")
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกแก้ไข

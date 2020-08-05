@@ -1,0 +1,61 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title}
+    i.far.fa-calendar-check
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-12
+      h4.text-warning 1#. ปีการเพาะปลูก #{yearName} ครั้งที่ #{orders}
+      h4.text-warning 2#. เลือกสมาชิกที่เพาะปลูก
+      if yearName && orders
+        form(method='POST' action='/audit/member/find')
+          .form-group
+            input(name='_csrf', type='hidden', value =_csrf)
+            input#orders(type="hidden" name="orders" value=orders)
+            input#yearName(type="hidden" name="yearName" value=yearName)
+            label(for="findText") เลือกเลขที่ สมาชิก ที่จะทำการตรวจสอบ:
+            if findText
+              input#findText(type="text" name="findText" placeholder="Find Text" value=findText)
+            else
+              input#findText(type="text" name="findText" placeholder="Find Text")
+            button.col-md-2.btn.btn-success(type='submit') ค้นหา »
+  .row
+    .col-md-12
+      hr
+      if resultMemberLenght > 0
+        table#dataTable.table.table-hover.bg-gray-800
+          thead
+            tr.bg-primary
+              th NO.
+              th MEMBER ID
+              th HOME NO
+              th GROUP NO
+              th VILLAGE
+              th SUB DISTRICT
+              th DISTRICT
+              th PROVINCE
+              th POST CODE
+              th REGISTER 
+              th IDCARD
+              th PHONE
+          tbody
+            - var ii=0 
+            each i in resultMember
+              tr
+                td= (++ii)
+                td
+                  a(href="/audit/member/produce/"+yearName+'/'+i.memberId+'/'+orders+'/'+i._id) #{i.memberId}
+                td= i.homeNo
+                td= i.groupNo
+                td= i.village
+                td= i.subDistrict
+                td= i.district
+                td= i.province
+                td= i.postCode
+                td=(i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)
+                td= i.IDCARD
+                td= i.phone
+        caption ค้นหาด้วย คำว่า : #{findText} , จำนวนที่พบ #{resultMemberLenght} รายการ
+

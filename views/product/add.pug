@@ -1,0 +1,48 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Add )
+  p.lead.text-success #{caption} : ( เพิ่ม )
+  hr
+  //- if(findText)
+  //-   a(href="/product/findText?findText="+findText) << BACK
+  //- else
+  //-   a(href="/product") << BACK
+
+  if(findText)
+    a.btn.btn-outline-dark(href="/product/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    a.btn.btn-outline-dark(href="/product/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+
+  
+  if findText == 'undefined'
+    - let findTextRev = 'XXXXX'
+  else
+    - let findTextRev = findText
+
+  form(method='POST' action='/product/add/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='productNameTh') PRODUCT NAME TH :
+          if(payload)
+            input#productNameTh.form-control.text-success(value=payload.productNameTh name="productNameTh" type='text' placeholder="ชื่อไทย") 
+          else
+            input#productNameTh.form-control.text-success(name="productNameTh" type='text' placeholder="ชื่อไทย") 
+        .form-group
+          label.col-form-label.text-primary(for='productNameEn') PRODUCT NAME EN :
+          if(payload)
+            input#productNameEn.form-control.text-success(value=payload.productNameEn type='text' name ="productNameEn" placeholder="ชื่ออังกฤษ")
+          else
+            input#productNameEn.form-control.text-success(name="productNameEn" type='text' placeholder="ชื่ออังกฤษ")
+        .form-group
+          label.col-form-label.text-primary(for='notes') NOTES:
+          if(payload)
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") #{payload.notes}
+          else
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ")
+
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกเพิ่มผลผลิต

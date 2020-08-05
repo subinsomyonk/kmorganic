@@ -1,0 +1,150 @@
+extends ../layout
+
+block content
+  script.
+    function myFunction(x,_id){
+      //- alert('click row '+x.rowIndex+',_id'+_id);
+      test(_id);
+      $('.bd-example-modal-lg').modal('show');
+    }
+    //confirm to delete record
+    function btnDel(){
+      let productNameTh = $('#productNameTh').html();
+      let findText_ = $('#findText').val().trim();
+      let _id = $('#_id').html().trim();
+      let findText = $('#findText').val().trim();
+      let okDel = confirm('ต้องการลบพันธุ์พืช '+ productNameTh +' ออกจากระบบ');
+      if(okDel){
+        location.href = "/product/delete/"+_id+"/"+findText;
+      }
+    }
+    //Product Edit page
+    function btnEdit(){
+      let _id = $('#_id').html().trim();
+      let findText = $('#findText').val().trim();
+      location.href = "/product/edit/"+_id+"/"+findText;
+    }
+    //View the record of Area
+    function test(_id){
+      $('#_id').html('');
+      $('#_id').html(_id);
+      $.ajax('/product/findByIdInfo',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+
+          $('#modalbody').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          $('#headCaption').html('รายละเอียดผลผลิต');
+          if(okk==='success'){
+            let txtTable ='<table>';
+            let productNameTh = null;
+            $(dat).each(function(i, val) {
+              txtTable +='<tr><th class="text-primary"> PLANT NAME TH : </th>';
+              txtTable +='<th id="memberId" class="text-success">'+val.productNameTh+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> PLANT NAME EN : </th>';
+              txtTable +='<th class="text-success">'+val.productNameEn+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+              txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> CREATED AT : </th>';
+              txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+              txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+              productNameTh = val.productNameTh;
+            });
+            txtTable +='<caption>รายละเอียดพันธุ์พืช '+productNameTh+' </caption>';
+            txtTable +='</table>';
+            $('#productNameTh').html(productNameTh);
+            $('#modalbody').html(txtTable);
+          }
+        }
+      });
+    }
+
+  h1.text-primary #{title}
+    i.fab.fa-pagelines
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      form(method='POST' action='/product')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-2.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา :
+        if(findText !=='undefined')
+          input(type="text" value=findText name="findText" id="findText")
+        else
+          input(type="text" name="findText" id="findText")
+        button.col-md-2.btn.btn-primary(type='submit') ค้นหา
+    .dol-md-6
+      if(findText)
+        a.btn.btn-success(href="/product/add?findText="+findText) เพิ่มผลผลิต
+      else
+        a.btn.btn-success(href="/product/add?findText=") เพิ่มผลผลิต
+  hr
+  .row
+    .col-md-12
+      if result
+        <div class="table-responsive"> 
+          <table id="dataTable"  class="table table-hover">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>ลำดับ.</th>
+                  <th>PRODUCT NAME TH</th>
+                  <th>PRODUCT NAME EN</th>
+                  <th>NOTES</th>
+                  <th>CREATED AT</th>
+                  <th>UPDATED AT</th>
+                  <th>HANDLE</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              each i in result
+                tr(onclick="myFunction(this,\'"+i._id+"\')")
+                  td=ii++
+                  td=i.productNameTh
+                  td=i.productNameEn
+                  td=i.notes
+
+                  td=(i.createdAt.getDate() < 10 ? '0'+i.createdAt.getDate(): i.createdAt.getDate())+'/'+(i.createdAt.getMonth() < 10 ? '0'+(i.createdAt.getMonth()+1): (i.createdAt.getMonth()+1))+'/'+(i.createdAt.getFullYear()+543)
+                  td=(i.updatedAt.getDate() < 10 ? '0'+i.updatedAt.getDate(): i.updatedAt.getDate())+'/'+(i.updatedAt.getMonth() < 10 ? '0'+(i.updatedAt.getMonth()+1): (i.updatedAt.getMonth()+1))+'/'+(i.updatedAt.getFullYear()+543)
+
+                  //- td=i.createdAt
+                  //- td=i.updatedAt
+
+
+                  td
+                    a(data-target='.bd-example-modal-lg', data-toggle='modal', href="#", onClick="test(\'"+i._id+"\');") View
+                    //- a(href="#" onClick="test(\'"+i._id+"\');") test
+            </tbody>
+          </table>
+        </div>
+
+    .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+      .modal-dialog.modal-lg
+        .modal-content
+          .modal-header.bg-dark
+            h3#headCaption.text-success รายละเอียด ผลผลิต.........
+            span#_id(style="display:none") 
+            span#productNameTh(style="display:none") 
+          .modal-body#modalbody
+            p modal body show
+
+          .modal-footer
+            button.btn.btn-primary(type='button' onClick="btnEdit();") Edit : แก้ไข
+            button.btn.btn-danger(type='button' onClick="btnDel();") Delete :ลบ
+            button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+
+
+
+

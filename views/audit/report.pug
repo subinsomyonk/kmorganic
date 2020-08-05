@@ -1,0 +1,101 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.far.fa-calendar-check
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-12
+      if yearResult
+        form(method='POST' action='/audit/report/reportsss')
+          .form-group
+            input(name='_csrf', type='hidden', value=_csrf)
+            label(for="yearName") เลือกเลขที่ปี การเพาะปลูก:
+            select#yearName.form-control.col-md-2(name="yearName")
+              each i in yearResult
+                if yearName ==  i.yearName.yearName && yearName
+                  option(value = i.yearName.yearName selected )  #{i.yearName.yearName}
+                else
+                  option(value = i.yearName.yearName )  #{i.yearName.yearName}
+
+
+
+          button.col-md-2.btn.btn-success(type='submit') เลือก »
+  if allAudit && allAudit.length > 0
+    .row
+      .col-md-12
+        table#dataTable.table.table-hover.bg-gray-800
+          thead
+            tr.bg-primary
+              th NO.
+              th MEMBER ID
+              th ORDERS
+              th PLANT NAME TH
+              th AREA ID
+              th SIZE ACTION
+              th RESULT
+              th ESTIMATE
+              th %
+              th NOTES
+              th AUDITOR
+              
+          tbody
+
+            -let c = 0
+            -let totalEstimate = 0
+            -let totalSizeAction = 0
+            -let okPass = 0;
+            -let noPass = 0;
+
+            each val, i in allAudit
+              - (c++)
+              -totalEstimate = (totalEstimate + val.estimate)
+              -totalSizeAction += val.sizeAction
+
+              if val.result
+                - okPass += 1
+                tr.table-success
+                  td=(i+1)
+                  td.text-center=val.memberId 
+                  td.text-center=val.orders
+                  td=val.plantNameTh
+                  td.text-center=val.areaId
+                  td.text-center=val.sizeAction
+                  td.text-center ผ่าน
+                  td.text-center=val.estimate
+                  td.text-center=val.percentScore
+                  td.text-center=val.notes
+                  td=val.staffName
+              else
+                - noPass += 1
+                tr.table-danger
+                  td=(i+1)
+                  td.text-center=val.memberId 
+                  td.text-center=val.orders
+                  td=val.plantNameTh
+                  td.text-center=val.areaId
+                  td.text-center=val.sizeAction
+                  td.text-center ไม่ผ่าน
+                  td.text-center=val.estimate
+                  td.text-center=val.percentScore
+                  td.text-center=val.notes
+                  td=val.staffName
+          caption รายการตรวจสอบ เลขที่ #{yearName} จำนวน #{c} รายการ ผ่าน : #{okPass} รายการ ไม่ผ่าน : #{noPass} รายการ
+
+              
+  //- <tr class="table-active">...</tr>
+
+  //- <tr class="table-primary">...</tr>
+  //- <tr class="table-secondary">...</tr>
+  //- <tr class="table-success">...</tr>
+  //- <tr class="table-danger">...</tr>
+  //- <tr class="table-warning">...</tr>
+  //- <tr class="table-info">...</tr>
+  //- <tr class="table-light">...</tr>
+  //- <tr class="table-dark">...</tr>
+
+
+                    
+                    

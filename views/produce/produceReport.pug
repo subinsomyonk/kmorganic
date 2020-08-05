@@ -1,0 +1,51 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.far.fa-registered
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-12
+      form(method='GET' action='/produce/produceReport')
+          .form-group
+            label(for="yearName") เลือกเลขที่ปี การเพาะปลูก:
+            select#yearName.form-control(name="yearName")
+              each i in yearResult
+                if yearName == i.yearName
+                  option(value =  i.yearName selected)   #{i.yearName}
+                else
+                  option(value =  i.yearName)   #{i.yearName}
+          button.col-md-2.btn.btn-success(type='submit') แสดงรายงาน »
+  .row
+    .col-md-12
+      if produceResult
+        .table-responsive
+          table#dataTable.table.table-hover.bg-gray-800
+            thead
+              tr.text-warning.bg-primary.text-center
+                th NO.
+                th AREA ID
+                th AREA NAME
+                th LOCATION
+                th SIZE
+                th SIZE ACTION
+                th PLANT
+                th BY MEMBER ID
+                th NOTES
+            tbody
+              - let totalSizeAction = 0.00
+              each i,ii in produceResult
+                - totalSizeAction += parseFloat(i.sizeAction)
+                tr.text-success
+                  th= (ii+1)+'.'
+                  td= i.areaId
+                  td= i.areaName
+                  td= i.location
+                  td.text-center= i.size
+                  td.text-center= i.sizeAction
+                  td= i.plantNameTh
+                  td= i.memberId
+                  td= i.notes
+            caption เลขที่การเพาะปลูก #{yearName} จำนวน #{produceResult.length} รายการ รวม #{totalSizeAction} ไร่

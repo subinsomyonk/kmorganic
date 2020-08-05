@@ -1,0 +1,199 @@
+extends ../layout
+
+block content
+  script.
+    //confirm to delete record
+    function btnDel(){
+      let areaId = $('#areaId').html()
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      let okDel = confirm('ต้องการลบพื้นที่นี้ '+ areaId +' ออกจากระบบ')
+      if(okDel){
+        location.href = "/area/delete?_id="+_id+"&findText="+findText;
+      }
+    }
+    //Area Edit page
+    function btnEdit(){
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      location.href = "/area/edit/"+_id+"/"+findText;
+    }
+    function areaView(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth();
+      let yyyy = registers.getFullYear();
+
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      $('#register').val(yyyy+'-'+mm+'-'+dd);
+    }
+    //View the record of Area
+    function test( _id,areaId,areaName,village,subDistrict,district,province,memberId,size,register,statusId,notes,createdAt,updatedAt,referId,latitude,longitude){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let yyyymmdd = (yyyy+543)+'-'+mm+'-'+dd;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      $('#areaId').html(areaId);
+      $('#referId').html(referId);
+      $('#size').html(size);
+      $('#areaName').html(areaName);
+      $('#village').html(village);
+      $('#subDistrict').html(subDistrict);
+      $('#district').html(district);
+      $('#province').html(province);
+      $('#memberId').html(memberId);
+      $('#register').html(ddmmyyyy);
+      $('#notes').html(notes);
+      $('#createdAt').html(createdAt);
+      $('#updatedAt').html(updatedAt);
+
+      if(statusId=='1'){
+        $('#statusId').html('ปกติ');
+      }
+      else{
+        $('#statusId').html('ยกเลิก');
+      }
+      $('#cap').html('เลขที่แปลงเพาะปลูก '+areaId);
+      $('#_id').html(_id);
+      $('#latitude').html(latitude);
+      $('#longitude').html(longitude);
+      
+
+      $('.bd-example-modal-lg').modal('show');
+    }
+
+  h1.text-primary #{title}
+    i.far.fa-object-ungroup
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      form(method='POST' action='/area')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-2.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา :
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText")
+        else
+          input(type="text" name="findText" id="findText")
+        button.col-md-2.btn.btn-primary(type='submit') ค้นหา
+    .dol-md-6
+      if(findText)
+        a.btn.btn-success(href="/area/add?findText="+findText) เพิ่มแปลงเพาะปลูก
+      else
+        a.btn.btn-success(href="/area/add?findText=") เพิ่มแปลงเพาะปลูก
+  hr
+  .row
+    .col-md-12
+      if result
+        <div class="table-responsive">
+          <table id="dataTable"  class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>ลำดับ.</th>
+                  <th>AREA ID</th>
+                  <th>REFER ID</th>
+                  <th>REGISTER</th>
+                  <th>AREA NAME</th>
+                  <th>MEMBER ID</th>
+                  <th>LOCATION</th>
+                  <th>SIZE</th>
+                  <th>STATUS ID</th>
+                  //- <th>Handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1
+              each i in result
+                tr.text-success(onClick="test(\'"+i._id+"\',\'"+i.areaId+"\',\'"+i.areaName+"\',\'"+i.village+"\',\'"+i.subDistrict+"\',\'"+i.district+"\',\'"+i.province+"\',\'"+i.memberId+"\',\'"+i.size+   "\',\'"+i.register+"\',\'"+i.statusId+ "'\,\'"+i.notes+"\',\'"+i.createdAt+"\',\'"+i.updatedAt+"\',\'"+i.referId+"\',\'"+i.latitude+"\',\'"+i.longitude+"\');")
+                  td=ii++
+                  td=i.areaId
+                  td=i.referId
+                  td=(i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)
+                  td=i.areaName
+                  td=i.memberId
+                  td=i.village+' '+ i.subDistrict+' '+i.district+i.province
+                  td=i.size
+                  if(i.statusId)
+                    td ปกติ
+                  else
+                    td ยกเลิก
+                  //- td 
+                    
+                    //- a(data-target='.bd-example-modal-lg', data-toggle='modal', href="#", onClick="test(\'"+i._id+"\',\'"+i.areaId+"\',\'"+i.areaName+"\',\'"+i.village+"\',\'"+i.subDistrict+"\',\'"+i.district+"\',\'"+i.province+"\',\'"+i.memberId+"\',\'"+i.size+   "\',\'"+i.register+"\',\'"+i.statusId+ "'\,\'"+i.notes+"\',\'"+i.createdAt+"\',\'"+i.updatedAt+"\',\'"+i.referId+"\',\'"+i.latitude+"\',\'"+i.longitude+"\');") แก้ไข
+
+            </tbody>
+          </table>
+        </div>
+
+    .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+      .modal-dialog.modal-lg
+        .modal-content
+          .modal-header.bg-dark
+            h3.text-success รายละเอียด แปลงเพาะปลูก
+            span#_id(style="display:none") _id
+            
+          .modal-body
+
+            table.table-hover.bg-gray-800
+              caption#cap 
+              tr
+                th.text-primary AREA ID :
+                td.text-success#areaId
+              tr
+                th.text-primary REFER ID :
+                td.text-success#referId
+              tr
+                th.text-primary AREA NAME :
+                td.text-success#areaName
+              tr
+                th.text-primary VILLAGE :
+                td.text-success#village
+              tr
+                th.text-primary SUB  DISTRICT :
+                td.text-success#subDistrict
+              tr
+                th.text-primary DISTRICT :
+                td.text-success#district
+              tr
+                th.text-primary PROVINCE :
+                td.text-success#province
+              tr
+                th.text-primary MEMBER ID :
+                td.text-success#memberId
+              tr
+                th.text-primary REGISTER :
+                td.text-success#register
+              tr
+                th.text-primary NOTES :
+                td.text-success#notes
+              tr
+                th.text-primary CREATED AT :
+                td.text-success#createdAt
+              tr
+                th.text-primary UPDATED AT :
+                td.text-success#updatedAt
+              tr
+                th.text-primary STATUS :
+                td.text-success#statusId
+              tr
+                th.text-primary LATITUDE :
+                td.text-success#latitude
+              tr
+                th.text-primary LONGITUDE :
+                td.text-success#longitude
+              
+          .modal-footer
+            button.btn.btn-primary(type='button' onclick="btnEdit();") Edit : แก้ไข
+            button.btn.btn-danger(type='button' onclick="btnDel();") Delete :ลบ
+            button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+
+
+
+

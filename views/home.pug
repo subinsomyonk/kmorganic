@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  //- script.
+  //-   $('.datepicker').datepicker({
+  //-     format: 'dd/mm/yyyy',
+  //-     todayBtn: true,
+  //-     language: 'th',             //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
+  //-     thaiyear: true              //Set เป็นปี พ.ศ.
+  //-   }).datepicker("setDate", "0");  //กำหนดเป็นวันปัจุบัน
+  h1.text-primary #{title}
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      h3.text-primary ตรวจสอบ ข้อมูลของสมาชิก
+      p 
+      form(method='POST' action='/member/home')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-3.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText" placeholder="find with Member ID")
+        else
+          input(type="text" name="findText" id="findText" placeholder="find with Member ID")
+        button.col-md-3.btn.btn-primary(type='submit') ค้นหา
+    .col-md-6
+      <div class="card" style="width: 18rem;">
+      <img class="card-img-top" src="/images/logo.jpg" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">Say Hi....</h5>
+        <p class="card-text">It's important to say hi every day for main kind!</p>
+        <a href="#" class="btn btn-primary">No Link</a>
+      </div>
+    </div>
+      
+      
+  .row
+    .col-md-6
+      h4.text-primary 
+        u Remarks.
+      p 
+        em you could search with any text for get member information ex. Member ID, Village.
+        em Sub District, District, Province or member phone that was registered.
+    .col-md-6
+      
+      

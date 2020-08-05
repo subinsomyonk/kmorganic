@@ -1,0 +1,201 @@
+extends ../layout
+
+block content
+  script.
+    function myFunction(x,_id){
+        //- alert('click row '+x.rowIndex+',_id'+_id);
+        testt(_id);
+        $('.bd-example-modal-lg').modal('show');
+      }
+    //confirm to delete record
+    function btnDel(){
+      let memberId = $('#memberId').html().trim();
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      let okDel = confirm('ต้องการลบสมาชิก '+ memberId +' ออกจากระบบ')
+      if(okDel){
+        location.href = "/member/delete?_id="+_id+"&findText="+findText;
+      }
+    }
+    //member Edit page
+    function btnEdit(){
+      let _id = $('#_id').html().trim();
+      let findText = $('#findText').val().trim()
+      location.href = "/member/edit/"+_id+"/"+findText;
+    }
+    //for change Eng YYYY-mm-dd to dd/mm/yyyy of Thai
+    function EngThaiDate(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      return ddmmyyyy;
+    }
+    
+    //View the record of member
+    function testt(_id){
+      $('#_id').html('');
+      $('#_id').html(_id);
+      $.ajax('/member/findByIdInfo',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result); 
+          var okk = data.confirm;
+          var dat = data.data;
+          var flName = data.flName;
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> เลขที่สมาชิก : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> บ้านเลขที่ : </th>';
+                txtTable +='<th class="text-success">'+val.homeNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> หมู่ : </th>';
+                txtTable +='<th class="text-success">'+val.groupNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> บ้าน : </th>';
+                txtTable +='<th class="text-success">'+val.village+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> ตำบล : </th>';
+                txtTable +='<th class="text-success">'+val.subDistrict+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> อำเภอ : </th>';
+                txtTable +='<th class="text-success">'+val.district+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> จังหวัด : </th>';
+                txtTable +='<th class="text-success">'+val.province+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> รหัสไปรษณีย์ : </th>';
+                txtTable +='<th class="text-success">'+val.postCode+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> โทรศัพท์ : </th>';
+                txtTable +='<th class="text-success">'+val.phone+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> ลงทะเบียน : </th>';
+                txtTable +='<th class="text-success">'+EngThaiDate(val.register)+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> ประเภท : </th>';
+                txtTable +='<th class="text-success">'+val.memberType+'</th></tr>';
+
+                if(val.memberType == 'วิสามัญ'){
+                  txtTable +='<tr><th class="text-primary"> ชื่อกลุ่ม : </th>';
+                  txtTable +='<th class="text-success">'+val.organizeName+'</th></tr>';
+                }
+                  
+
+                txtTable +='<tr><th class="text-primary"> จำนวนหุ้น : </th>';
+                txtTable +='<th class="text-success">'+val.shareHolder+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> หมายเหนุ : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> เลขที่บัตรประชาชนเจ้าบ้าน : </th>';
+                txtTable +='<th class="text-success">'+val.IDCARD+' '+flName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> สถานะ : </th>';
+                if(val.statusId == 1)
+                  txtTable +='<th class="text-success">ปกติ</th></tr>';
+                else
+                  txtTable +='<th class="text-success">ออก</th></tr>';
+                txtTable +='</table>';
+                $('#modalbody').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody').html('Not Found Data ');
+          }
+        }
+      });
+    }
+  h1.text-primary #{title}
+    i.fas.fa-user
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6  
+      form(method='POST' action='/member')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-2.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา :
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText")
+        else
+          input(type="text" name="findText" id="findText")
+        button.col-md-2.btn.btn-primary(type='submit') ค้นหา
+    .dol-md-6
+      if(findText)
+        a.btn.btn-success(href="/member/add?findText="+findText) เพิ่มสมาชิก
+      else
+        a.btn.btn-success(href="/member/add?findText=") เพิ่มสมาชิก
+      a.btn.btn-primary(href="/member/memberAll") LIST ALL MEMBER
+  hr
+  .row
+    .col-md-12
+      if result
+        <div class="table-responsive">
+          <table id="dataTable" class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>NO.</th> 
+                  <th>MEMBER ID</th>
+                  <th>HOME NO</th>
+                  <th>GROUP NO</th>
+                  <th>VILLAGE</th>
+                  <th>SUB DISTRICT</th>
+                  <th>DISTRICT</th>
+                  <th>PROVINCE</th>
+                  <th>POSTCODE</th>
+                  <th>REGISTER</th>
+                  <th>TYPE MEMBER</th>
+                  <th>BOND</th>
+                  <th>IDCARD</th>
+                  <th>STATUS ID</th>
+                  //- <th>Handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              each i in result
+                tr.text-success(onclick="myFunction(this,\'"+i._id+"\')")
+                  td=ii++
+                  td=i.memberId
+                  td=i.homeNo
+                  td=i.groupNo
+                  td=i.village
+                  td=i.subDistrict
+                  td=i.district
+                  td=i.province
+                  td=i.postCode
+                  td=(i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)
+                  td=i.memberType
+                  td=i.shareHolder
+                  td=i.IDCARD
+                  if(i.statusId)
+                    td ปกติ
+                  else
+                    td ยกเลิก
+                  //- td
+                    //- a(data-target='.bd-example-modal-lg', data-toggle='modal', href="#", onClick="test(\'"+i._id+"\',\'"+i.memberId+"\',\'"+i.homeNo+"\',\'"+i.groupNo+"\',\'"+i.village+"\',\'"+i.subDistrict+"\',\'"+i.district+"\',\'"+i.province+"\',\'"+i.postCode+"\',\'"+i.phone+"\',\'"+i.notes+"\',\'"+i.register+"\',\'"+i.memberType+ +"\',\'"+i.shareHolder+"\',\'"+i.IDCARD+"\',\'"+i.statusId+"\',\'"+i.createdAt+"\',\'"+i.updatedAt+"\');") แสดง
+                    //- a(data-target='.bd-example-modal-lg', data-toggle='modal', href="", onClick="testt(\'"+i._id+"\')") แสดง
+            </tbody>
+          </table>
+        </div>
+
+    .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+      .modal-dialog.modal-lg
+        .modal-content
+          .modal-header.bg-dark
+            h3.text-success รายละเอียด สมาชิก
+            span#_id(style="display:none")
+          .modal-body#modalbody
+            p modal body show
+
+          .modal-footer
+            button.btn.btn-primary(type='button' onclick="btnEdit();") Edit : แก้ไข
+            button.btn.btn-danger(type='button' onclick="btnDel();") Delete :ลบ
+            button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+
+
+
+

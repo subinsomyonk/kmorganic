@@ -1,0 +1,611 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+ 
+
+
+  
+  -let totalAllFamilyAgeNormal = 0
+  -let avgTotalAllFamilyAgeNormal = 0.00
+  -let familyArr = [0,0,0,0,0,0,0];
+  -let shareHolderArr = [0,0,0,0,0];
+  -let yearDiff = 0;
+  each val, key in member_families
+
+    if val.shareHolder<=20
+      - shareHolderArr[0] +=1
+    else if val.shareHolder<=40
+      - shareHolderArr[1] +=1
+    else if val.shareHolder<=60
+      - shareHolderArr[2] +=1
+    else if val.shareHolder<=100
+      - shareHolderArr[3] +=1
+    else 
+      - shareHolderArr[4] +=1
+    
+    each v, k in val.member_families
+      //- p= (currentYear -v.birthDate.getFullYear())
+      - totalAllFamilyAgeNormal +=(currentYear - v.birthDate.getFullYear())
+      - yearDiff = (currentYear - v.birthDate.getFullYear())
+      //- p= yearDiff
+
+      if yearDiff<=10
+        - familyArr[0] +=1
+      else if yearDiff<=15
+        - familyArr[1] +=1
+      else if yearDiff<=20
+        - familyArr[2] +=1
+      else if yearDiff<=25
+        - familyArr[3] +=1
+      else if yearDiff<=30
+        - familyArr[4] +=1
+      else if yearDiff<=40
+        - familyArr[5] +=1
+      else 
+        - familyArr[6] +=1
+      
+  //- p= (totalAllFamilyAgeNormal /family[0].count)
+  
+  - let totalNormalAge = 0
+  - let avgNormalAge = 0;
+
+  - let totalUnNormalAge = 0
+  - let avgUnNormalAge = 0;
+  each val, key in memberRegisterDate
+    - totalNormalAge += (currentYear - val.member.register)
+  - avgNormalAge = parseFloat(totalNormalAge / memberNormal[0].count).toFixed(2)
+
+  each val, key in memberRegisterDateUn
+    - totalUnNormalAge += (currentYear - val.member.register)
+  - avgUnNormalAge = parseFloat(totalUnNormalAge / memberUnnormal[0].count).toFixed(2)
+
+  .row
+    .col-md-6
+      if memberNormal || memberUnnormal
+        .table-responsive
+          table.table.table-hover.bg-gray-800
+            thead
+              tr.bg-primary.text-center
+                th(colspan="2")
+                  h4 ข้อมูลสมาชิกสามัญ 
+            tbody
+
+              tr
+                th.text-right.text-primary จำนวนเลขที่สมาชิกทั้งหมด :
+                td.text-success #{memberNormal[0].count} หมายเลข
+
+              tr
+                th.text-right.text-primary จำนวนหุ้นน้อยสุด :
+                td.text-success #{memberNormal[0].minShareHolder} หุ้น
+              tr
+                th.text-right.text-primary จำนวนหุ้นมากสุด :
+                td.text-success #{memberNormal[0].maxShareHolder} หุ้น
+
+                - let countMaxYear= (currentYear - memberNormal[0].minRegister.getFullYear())
+                - let countMinYear= (currentYear - memberNormal[0].maxRegister.getFullYear())
+              tr
+                th.text-right.text-primary จำนวนหุ้นเฉลี่ย :
+                 - let avg = memberNormal[0].totalShareHolder/memberNormal[0].count;
+                td.text-success #{avg.toFixed(2)} หุ้น / สมาชิก
+              tr
+                th.text-right.text-primary จำนวนหุ้นสามัญรวม :
+                td.text-success #{memberNormal[0].totalShareHolder} หุ้น
+
+
+
+              tr
+                th.text-right.text-primary สมมัครสมาชิกเก่าสุด :
+                td.text-success=(memberNormal[0].minRegister.getDate() < 10 ? '0'+memberNormal[0].minRegister.getDate(): memberNormal[0].minRegister.getDate())+'/'+(memberNormal[0].minRegister.getMonth() < 10 ? '0'+(memberNormal[0].minRegister.getMonth()+1): (memberNormal[0].minRegister.getMonth()+1))+'/'+(memberNormal[0].minRegister.getFullYear()+543) +', ' +countMaxYear+' ปี'
+              tr
+                th.text-right.text-primary สมมัครสมาชิกล่าสุด :
+                td.text-success=(memberNormal[0].maxRegister.getDate() < 10 ? '0'+memberNormal[0].maxRegister.getDate(): memberNormal[0].maxRegister.getDate())+'/'+(memberNormal[0].maxRegister.getMonth() < 10 ? '0'+(memberNormal[0].maxRegister.getMonth()+1): (memberNormal[0].maxRegister.getMonth()+1))+'/'+(memberNormal[0].maxRegister.getFullYear()+543) +', ' +countMinYear+' ปี'             
+              tr
+                th.text-right.text-primary จำนวนอายุเฉลี่ยของสมาชิกสามัญ :               
+                //- td.text-success= ' ' + (countMaxYear-countMinYear)/2
+                td.text-success : #{avgNormalAge} ปี
+
+
+              if memberRegisterDate
+                - let arrSum = [0,0,0,0];
+                - let yearDiff = 0;
+
+                each i in memberRegisterDate
+                  - yearDiff = (currentYear - i.member.register)
+                  //- p= yearDiff
+                  //- - totalAllFamilyAgeNormal +=(currentYear - v.birthDate.getFullYear())
+                  //- - yearDiff = (currentYear - v.birthDate.getFullYear())
+
+                  if yearDiff<=3
+                    - arrSum[0] +=1
+                  else if yearDiff<=6
+                    - arrSum[1] +=1
+                  else if yearDiff<=9
+                    - arrSum[2] +=1
+                  else 
+                    - arrSum[3] +=1
+  
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption  จำนวนสมาชิก สามัญ ตามช่วงอายุ:
+                      thead
+                        tr.text-center.text-primary
+                          th ช่วงอายุสมาชิก =>>
+                          th 1-3 ปี
+                          th 3-6 ปี
+                          th 7-9 ปี
+                          th มากกว่า 10 ปี
+                      tbody
+                        tr.text-success
+                          td.text-center จำนวนสมาชิก(เลขหมาย)
+                          td.text-center= arrSum[0]
+                          td.text-center= arrSum[1]
+                          td.text-center= arrSum[2]  
+                          td.text-center= arrSum[3]
+
+              if member_families
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption จำนวนสมาชิก สามัญ ตามช่วงหุ้น:
+                      thead 
+                        tr.text-center.text-primary
+                          th ช่วงจำนวนหุ้น =>> 
+                          th 1-20
+                          th 21-40
+                          th 41-60
+                          th 61-100
+                          th มากกว่า 100
+                      tbody
+                        tr.text-success
+                          td.text-center จำนวนสมาชิก(เลขหมาย)
+                          td.text-center= shareHolderArr[0]
+                          td.text-center= shareHolderArr[1]
+                          td.text-center= shareHolderArr[2]  
+                          td.text-center= shareHolderArr[3]
+                          td.text-center= shareHolderArr[4]
+                          
+              if allNormalMemberFamily
+                //- p= allNormalMemberFamily[0].member_families[0].firstName
+                -let memberNumFamilyArray = [0,0,0,0];
+                each val in allNormalMemberFamily
+                  //- each v in val.member_families
+                  //-   p= v.firstName
+                  //- p= val.member_families.length
+
+                  if( val.member_families.length<=3 && val.member_families.length >0)
+                    - memberNumFamilyArray[0] +=1
+                  else if val.member_families.length<=6
+                    - memberNumFamilyArray[1] +=1
+                  else if val.member_families.length<=9
+                    - memberNumFamilyArray[2] +=1
+                  else 
+                    - memberNumFamilyArray[3] +=1
+
+                //- each x in memberNumFamilyArray
+                //-   p=x
+                  
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption ช่วงจำนวนคนในครอรบครัว สมาชิกสามัญ:
+                      thead 
+                        tr.text-center.text-primary
+                          th ช่วงจำนวนคน =>> 
+                          th 1-3
+                          th 4-6
+                          th 7-9
+                          th ตั้งแต่ 10 
+                      tbody
+                        tr.text-success
+                          th.text-center จำนวนสมาชิก(เลขหมาย)
+                          td.text-center= memberNumFamilyArray[0]
+                          td.text-center= memberNumFamilyArray[1]
+                          td.text-center= memberNumFamilyArray[2]  
+                          td.text-center= memberNumFamilyArray[3]
+                          
+
+
+
+
+
+
+
+              tr
+                th.text-warning(colspan="2") 
+                  h5 ครอบครัวของสมาชิก 
+                  //- ครอบครัวของสมาชิก*****************************************************
+                  - let totalAge = 0
+                  - let age = 0
+                  - let currentFamilyBirthYear = 0
+                  - let avgAgeFamily = 0.0
+                  - let numIi =0
+
+                  if member_families
+
+                    each i in member_families
+                      each  ii in i.member_families
+                        - currentFamilyBirthYear = ii.birthDate.getFullYear()
+                        - totalAge += (currentYear - currentFamilyBirthYear)
+                        - ++numIi
+                    - avgAgeFamily = totalAge/numIi
+
+              - let maxAge= (currentYear - family[0].minBirthDate.getFullYear())
+              - let minAge= (currentYear - family[0].maxBirthDate.getFullYear())
+
+              tr
+                th.text-right.text-primary จำนวนคนในครอบครัวของสมาชิกทั้งหมด :
+                td.text-success #{family[0].count} คน
+              tr
+                th.text-right.text-primary เพศ :
+                td.text-success #{countGender[0]._id} จำนวน #{countGender[0].totalCount} คน
+              tr
+                th.text-right.text-primary
+                td.text-success #{countGender[1]._id} จำนวน #{countGender[1].totalCount} คน
+              tr
+                th.text-right.text-primary เฉลี่ยจำนวนคน ต่อ ครอบครัวสมาชิก :
+                - let avgCountPerFamily = parseInt(family[0].count / memberNormal[0].count)
+                td.text-success #{avgCountPerFamily} คน/ครอบครัว
+              tr
+                th.text-right.text-primary คนในครอบครัวอายุน้อยสุด เกิดวันที่ :
+                td.text-success=(family[0].maxBirthDate.getDate() < 10 ? '0'+family[0].maxBirthDate.getDate(): family[0].maxBirthDate.getDate())+'/'+(family[0].maxBirthDate.getMonth() < 10 ? '0'+(family[0].maxBirthDate.getMonth()+1): (family[0].maxBirthDate.getMonth()+1))+'/'+(family[0].maxBirthDate.getFullYear()+543)+', ' +minAge+' ปี'
+              tr
+                th.text-right.text-primary คนในครอบครัวอายุมากสุด เกิดวันที่ :
+                td.text-success=(family[0].minBirthDate.getDate() < 10 ? '0'+family[0].minBirthDate.getDate(): family[0].minBirthDate.getDate())+'/'+(family[0].minBirthDate.getMonth() < 10 ? '0'+(family[0].minBirthDate.getMonth()+1): (family[0].minBirthDate.getMonth()+1))+'/'+(family[0].minBirthDate.getFullYear()+543)+', ' +maxAge+' ปี'
+              tr
+                th.text-right.text-primary จำนวนอายุเฉลี่ยคนในครอบครัว :
+                td.text-success #{(totalAllFamilyAgeNormal /family[0].count).toFixed(2)} ปี/คน (ในครอบครัว)
+              
+              tr 
+                td.text-success(colspan="2")
+                  table
+                    caption  จำนวนคนในครอบครัวของสมาชิก สามัญ ตามช่วงอายุ:
+                    thead
+                      tr.text-center.text-primary
+                        th ช่วงอายุ (ปี)=>
+                        th 1-10
+                        th 11-15
+                        th 16-20
+                        th 21-25
+                        th 26-30
+                        th 31-40    
+                        th มากกว่า 41
+                    tbody
+                      tr.text-success
+                        td.text-center จำนวน (คน)
+                        td.text-center= familyArr[0]
+                        td.text-center= familyArr[1]
+                        td.text-center= familyArr[2]  
+                        td.text-center= familyArr[3]
+                        td.text-center= familyArr[4]
+                        td.text-center= familyArr[5]
+                        td.text-center= familyArr[6]
+
+              tr
+                th.text-warning(colspan="2")   
+                  h5 แปลงเพาะปลูกของสมาชิก
+                td 
+                  hr
+
+
+              if area
+
+                tr
+                  th.text-right.text-primary รวมจำนวนแปลงเพาะปลูก :
+                  td.text-success #{area[0].count} แปลง
+                tr
+                  th.text-right.text-primary รวมจำนวนพื้นที่เพาะปลูก  :
+                  td.text-success #{area[0].totalSize} ไร่
+                tr
+                  th.text-right.text-primary พื้นที่แปลงเพาะปลูกที่น้อยที่สุด  :
+                  td.text-success #{area[0].minSize} ไร่
+                tr
+                  th.text-right.text-primary พื้นที่แปลงเพาะปลูกที่มากที่สุด  :
+                  td.text-success #{area[0].maxMax} ไร่
+                tr
+                  
+                  - let avgAreaCount = parseInt(area[0].count/memberNormal[0].count);
+                  - let avgAreaSize = parseInt(area[0].totalSize/memberNormal[0].count);
+
+                  th.text-right.text-primary เฉลี่ยแปลงเพาะปลูก ต่อสมาชิก  :
+                  td.text-success #{avgAreaCount} แปลง ต่อ สมาชิก
+                tr
+                  th.text-right.text-primary เฉลี่ยพื้นที่แปลงเพาะปลูก ต่อสมาชิก  :
+                  td.text-success #{avgAreaSize}  ไร่ ต่อ สมาชิก
+                tr
+                  - let countMaxYearRegister= (currentYear - area[0].minRegister.getFullYear())
+                  - let countMinYearRegister= (currentYear - area[0].maxRegister.getFullYear())
+
+                  th.text-right.text-primary อายุแปลงที่ลงทะเบียนนานที่สุด  :
+                  td.text-success=(area[0].minRegister.getDate() < 10 ? '0'+area[0].minRegister.getDate(): area[0].minRegister.getDate())+'/'+(area[0].minRegister.getMonth() < 10 ? '0'+(area[0].minRegister.getMonth()+1): (area[0].minRegister.getMonth()+1))+'/'+(area[0].minRegister.getFullYear()+543) +', '+ countMaxYearRegister+'  ปี'
+                tr
+                  th.text-right.text-primary อายุแปลงที่ลงทะเบียนล่าสุด   :
+                  td.text-success=(area[0].maxRegister.getDate() < 10 ? '0'+area[0].maxRegister.getDate(): area[0].maxRegister.getDate())+'/'+(area[0].maxRegister.getMonth() < 10 ? '0'+(area[0].maxRegister.getMonth()+1): (area[0].maxRegister.getMonth()+1))+'/'+(area[0].maxRegister.getFullYear()+543) +' , '+countMinYearRegister+'   ปี'
+                tr
+                  th.text-right.text-primary เฉลี่ยอายุแปลงเพาะปลูก   :
+                  td.text-success 10 ปี
+
+
+
+
+              if allNormalMemberArea
+                - let areaRegisterArr = [0,0,0,0,0]
+                - let areaSizeArr = [0,0,0,0,0,0]
+                - let countRegisterYear = 0
+                - let memberCountArea = [0,0,0,0,0,0] 
+                
+                - let noo = 0
+
+                each val in allNormalMemberArea
+
+
+                 
+
+
+                  - noo = 0
+
+                  each v in val.member_areas
+                    - countRegisterYear= (currentYear- v.register.getFullYear())
+                    - noo++
+                    //- p=countRegisterYear
+                    if countRegisterYear <= 3 && countRegisterYear >=0
+                      -areaRegisterArr[0] +=1
+                    else if countRegisterYear <=6
+                      -areaRegisterArr[1] +=1
+                    else if countRegisterYear <=9
+                      -areaRegisterArr[2] +=1
+                    else if countRegisterYear <=15
+                      -areaRegisterArr[3] +=1
+                    else  
+                      -areaRegisterArr[4] +=1
+
+                    //-size
+                    if v.size <= 3 && v.size >=0
+                      -areaSizeArr[0] +=1
+                    else if v.size <=6
+                      -areaSizeArr[1] +=1
+                    else if v.size <=9
+                      -areaSizeArr[2] +=1
+                    else if v.size <=15
+                      -areaSizeArr[3] +=1
+                    else if v.size <=20
+                      -areaSizeArr[4] +=1
+                    else  
+                      -areaSizeArr[5] +=1
+
+
+                  if noo <= 3 && noo >=0
+                    - memberCountArea[0] +=1
+                  else if noo <=6
+                    - memberCountArea[1] +=1
+                  else if noo <=9
+                    - memberCountArea[2] +=1
+                  else if noo <=15
+                    - memberCountArea[3] +=1
+                  else if noo <=20
+                    - memberCountArea[4] +=1
+                  else  
+                    - memberCountArea[5] +=1
+
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption ช่วงอายุแปลงที่ลงทะบียน
+                      thead
+                        tr.text-center.text-primary
+                          th ช่วงอายุแปลงที่ลงทะบียน(ปี)
+                          th 1-3
+                          th 4-6
+                          th 7-9
+                          th 10-15
+                          th ตั้งแต่ 16
+                      tbody
+                        tr
+                          th.text-primary จำนวนแปลง
+                          td.text-success.text-center=areaRegisterArr[0]
+                          td.text-success.text-center=areaRegisterArr[1]
+                          td.text-success.text-center=areaRegisterArr[2]
+                          td.text-success.text-center=areaRegisterArr[3]
+                          td.text-success.text-center=areaRegisterArr[4]
+
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption ช่วงขนาดพื้นที่แปลงเพาะปลูก
+                      thead
+                        tr.text-center.text-primary
+                          th.text-primary ช่วงขนาดพื้นที่แปลงเพาะปลูก(ไร่)
+                          th 1-3
+                          th 4-6
+                          th 7-9
+                          th 10-15
+                          th 16-20
+                          th 21 Up
+                      tbody
+                        tr
+                          th.text-primary จำนวนแปลง
+                          td.text-success.text-center=areaSizeArr[0]
+                          td.text-success.text-center=areaSizeArr[1]
+                          td.text-success.text-center=areaSizeArr[2]
+                          td.text-success.text-center=areaSizeArr[3]
+                          td.text-success.text-center=areaSizeArr[4]
+                          td.text-success.text-center=areaSizeArr[5]
+
+
+                tr
+                  td.text-success(colspan="2")
+                    table
+                      caption ช่วงขนาดพื้นที่แปลงเพาะปลูก
+                      thead
+                        tr.text-center.text-primary
+                          th.text-primary ช่วง จำนวนแปลงเพาะปลูก(แปลง)
+                          th 1-3
+                          th 4-6
+                          th 7-9
+                          th 10-15
+                          th 16-20
+                          th 21 Up
+                      tbody
+                        tr
+                          th.text-primary จำนวนสมาชิก(เลขหมาย)
+                          td.text-success.text-center=memberCountArea[0]
+                          td.text-success.text-center=memberCountArea[1]
+                          td.text-success.text-center=memberCountArea[2]
+                          td.text-success.text-center=memberCountArea[3]
+                          td.text-success.text-center=memberCountArea[4]
+                          td.text-success.text-center=memberCountArea[5]
+                   
+
+
+
+            caption.text-right.text-danger=' *** สมาชิก สามัญ ( Last Update ) : '+ currentDate+'/'+(currentMonth+1)+'/'+(currentYear+543)
+
+
+
+
+
+
+    .col-md-6
+      .table-responsive
+        table.table.table-hover.bg-gray-800
+          thead
+            tr.bg-primary.text-center
+              th(colspan="2")
+                h4 ข้อมูลสมาชิกวิสามัญ 
+          tbody
+            tr
+              th.text-right.text-primary จำนวนเลขที่สมาชิกทั้งหมด :
+              td.text-success #{memberUnnormal[0].count} หมายเลข
+            tr
+              th.text-right.text-primary จำนวนหุ้นน้อยสุด :
+              td.text-success #{memberUnnormal[0].minShareHolder} หุ้น
+            tr
+              th.text-right.text-primary จำนวนหุ้นมากสุด :
+              td.text-success #{memberUnnormal[0].maxShareHolder} หุ้น
+            tr
+              th.text-right.text-primary จำนวนหุ้นเฉลี่ย :
+                - let avg = memberUnnormal[0].totalShareHolder/memberUnnormal[0].count;
+              td.text-success #{avg.toFixed(2)} หุ้น / สมาชิก
+            tr
+              th.text-right.text-primary จำนวนหุ้นวิสามัญรวม :
+              td.text-success #{memberUnnormal[0].totalShareHolder} หุ้น  
+            tr
+              - let countMaxYearRegisterUn= (currentYear - memberUnnormal[0].minRegister.getFullYear())
+              - let countMinYearRegisterUn= (currentYear - memberUnnormal[0].maxRegister.getFullYear())
+
+              th.text-right.text-primary สมมัครสมาชิกเก่าสุด :
+              td.text-success=(memberUnnormal[0].minRegister.getDate() < 10 ? '0'+memberUnnormal[0].minRegister.getDate(): memberUnnormal[0].minRegister.getDate())+'/'+(memberUnnormal[0].minRegister.getMonth() < 10 ? '0'+(memberUnnormal[0].minRegister.getMonth()+1): (memberUnnormal[0].minRegister.getMonth()+1))+'/'+(memberUnnormal[0].minRegister.getFullYear()+543) +', '+countMaxYearRegisterUn+' ปี'
+            tr
+              th.text-right.text-primary สมมัครสมาชิกสุดสุด :
+              td.text-success=(memberUnnormal[0].maxRegister.getDate() < 10 ? '0'+memberUnnormal[0].maxRegister.getDate(): memberUnnormal[0].maxRegister.getDate())+'/'+(memberUnnormal[0].maxRegister.getMonth() < 10 ? '0'+(memberUnnormal[0].maxRegister.getMonth()+1): (memberUnnormal[0].maxRegister.getMonth()+1))+'/'+(memberUnnormal[0].maxRegister.getFullYear()+543)+', '+countMinYearRegisterUn+' ปี'
+            tr
+              th.text-right.text-primary จำนวนอายุเฉลี่ยของ สมาชิกวิสามัญ :               
+              //- td.text-success= ' ' + (countMaxYear-countMinYear)/2
+              td.text-success : #{avgUnNormalAge} ปี         
+            
+
+
+            if memberRegisterDateUn
+              - arrSum = [0,0,0,0];
+              - yearDiff = 0;
+              - let totSumAge = 0;
+              - shareHolderArr = [0,0,0,0,0];
+              each i in memberRegisterDateUn
+                //- - yearDiff = (currentYear - parseInt(i.register));
+
+
+
+                if i.member.shareHolder<=20
+                  - shareHolderArr[0] +=1
+                else if i.member.shareHolder<=40
+                  - shareHolderArr[1] +=1
+                else if i.member.shareHolder<=60
+                  - shareHolderArr[2] +=1
+                else if i.member.shareHolder<=100
+                  - shareHolderArr[3] +=1
+                else 
+                  - shareHolderArr[4] +=1
+                  
+                - yearDiff = (currentYear - i.member.register)
+                //- - shareHolderArr = i
+                if yearDiff<=3
+                  - arrSum[0] +=1
+                else if yearDiff<=6
+                  - arrSum[1] +=1
+                else if yearDiff<=9
+                  - arrSum[2] +=1
+                else 
+                  - arrSum[3] +=1
+            
+
+              tr
+                td.text-success(colspan="2")
+                  table
+                    caption  จำนวนสมาชิก วิสามัญ ตามช่วงอายุ:
+                    thead
+                      tr.text-center.text-primary
+                        th ช่วงอายุสมาชิก =>>
+                        th 1-3 ปี
+                        th 3-6 ปี
+                        th 7-9 ปี
+                        th มากกว่า 10 ปี
+                    tbody
+                      tr.text-success
+                        td.text-center จำนวนสมาชิก(เลขหมาย)
+                        td.text-center= arrSum[0]
+                        td.text-center= arrSum[1]
+                        td.text-center= arrSum[2]  
+                        td.text-center= arrSum[3]
+              tr
+                  td.text-success(colspan="2")
+                    table
+                      caption จำนวนสมาชิก วิสามัญ ตามช่วงหุ้น:
+                      thead 
+                        tr.text-center.text-primary
+                          th ช่วงจำนวนหุ้น =>> 
+                          th 1-20
+                          th 21-40
+                          th 41-60
+                          th 61-100
+                          th มากกว่า 100
+                      tbody
+                        tr.text-success
+                          td.text-center จำนวนสมาชิก(เลขหมาย)
+                          td.text-center= shareHolderArr[0]
+                          td.text-center= shareHolderArr[1]
+                          td.text-center= shareHolderArr[2]  
+                          td.text-center= shareHolderArr[3]
+                          td.text-center= shareHolderArr[4]
+
+
+
+
+          caption.text-right.text-danger=' *** สมาชิก วิสามัญ ( Last Update ) : '+ currentDate+'/'+(currentMonth+1)+'/'+(currentYear+543)
+
+
+          //- if member_families
+          //-   tr
+          //-     td.text-success(colspan="2")
+          //-       table
+          //-         caption จำนวนสมาชิก สามัญ ตามช่วงหุ้น:
+          //-         thead 
+          //-           tr.text-center.text-primary
+          //-             th ช่วงจำนวนหุ้น =>> 
+          //-             th 1-20
+          //-             th 21-40
+          //-             th 41-60
+          //-             th 61-100
+          //-             th มากกว่า 100
+          //-         tbody
+          //-           tr.text-success
+          //-             td.text-center จำนวนสมาชิก(เลขหมาย)
+          //-             td.text-center= shareHolderArr[0]
+          //-             td.text-center= shareHolderArr[1]
+          //-             td.text-center= shareHolderArr[2]  
+          //-             td.text-center= shareHolderArr[3]
+          //-             td.text-center= shareHolderArr[4]

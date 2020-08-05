@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title}
+    i.far.fa-calendar-check
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-6
+      h2.text-warning 1#. เลือกปีการเพาะปลูก #{orders}
+      if yearResult
+        form(method='POST' action='/audit/member')
+          .form-group
+            input(name='_csrf', type='hidden', value =_csrf)
+            input#orders(type="hidden" name="orders" value=orders)
+            label(for="yearName") เลือกเลขที่ ปีการเพาะปลูก ที่จะทำการตรวจสอบ:
+            select#yearName.form-control(name="yearName")
+              each i in yearResult
+                - let _idYear = i._id
+                option(value =  i.yearName)   #{i.yearName}
+          button.col-md-2.btn.btn-success(type='submit') เลือก »

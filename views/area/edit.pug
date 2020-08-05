@@ -1,0 +1,78 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Edit )
+  p.lead.text-success #{caption} : ( แก้ไข )
+  hr
+  a.btn.btn-outline-dark(href="/area/findText?findText="+findText) 
+    i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  
+  -  let registers = new Date(result.register);
+  -  let dd = registers.getDate();
+  -  let mm = registers.getMonth()+1;
+  -  let yyyy = registers.getFullYear();
+  -  dd = (dd < 10 ? '0' : '') + dd;
+  -  mm = (mm < 10 ? '0' : '') + mm;
+  -  let yyyymmdd = yyyy+'-'+mm+'-'+dd;   
+
+  form(method='POST' action='/area/edit/update/'+ _id +'/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='areaId') Area ID:
+          input#areaId.form-control.text-success(name="areaId" value=result.areaId type='text' readOnly placeholder="เลขที่พื้นที่") 
+        .form-group
+          label.col-form-label.text-primary(for='referId') Refer ID:
+          input#referId.form-control.text-success(name="referId" value=result.referId type='text' placeholder="อ้างอิง")
+        .form-group
+          label.col-form-label.text-primary(for='areaName') Area Name:
+          input#areaName.form-control.text-success(name="areaName" value=result.areaName type='text' placeholder="ชื่อพื้นที่")
+        .form-group
+          label.col-form-label.text-primary(for='village') Last Name:
+          input#village.form-control.text-success(name="village" value=result.village type='text' placeholder="บ้าน")
+        .form-group
+          label.col-form-label.text-primary(for='subDistrict') Sub District:
+          input#subDistrict.form-control.text-success(value=result.subDistrict name="subDistrict" type='text' placeholder="ตำบล")
+        .form-group
+          label.col-form-label.text-primary(for='district') District:
+          input#district.form-control.text-success(name="district" value=result.district type='text' placeholder="อำเภอ")
+        .form-group
+          label.col-form-label.text-primary(for='province') Province:
+          input#province.form-control.text-success(name="province" value=result.province type='text' placeholder="จังหวัด")
+      .col-md-6
+        .form-group
+          label.col-form-label.text-primary(for="size") Size :
+          input#size.form-control.text-success(step='any' value=result.size type='number' name="size" placeholder="จำนวนไร่")
+        .form-group
+          label.col-form-label.text-primary(for='register') Register: #{yyyymmdd}
+          input#register.form-control.text-success(type='date' name='register' value= yyyymmdd  placeholder="วันที่ลงทะเบียน")
+        .form-group
+          label.col-form-label.text-primary(for="notes") Notes :
+          textarea#notes.form-control.text-success(name="notes" rows="3" placeholder="หมายเหตุ.") #{result.notes}
+        .form-group.custom-control.custom-checkbox
+          if(result.statusId)
+            input#statusId.custom-control-input(type="checkbox" name="statusId" checked)
+          else
+            input#statusId.custom-control-input(type="checkbox" name="statusId" )
+          label.custom-control-label.text-primary(for='statusId') สถานะ ปกติ
+        .form-group
+          if(result.createdAt)
+            label#createdAt.custom-control-label.text-primary() วันสร้าง #{result.createdAt}
+          if(result.updatedAt)
+            label#updatedAt.custom-control-label.text-primary() ปรับปรุงล่าสุด #{result.updatedAt}
+        .form-group
+          label.col-form-label.text-primary(for='memberId') Member ID:
+          if(result.memberId)
+            input#register.form-control.text-success(name="memberId" type='text' value=result.memberId placeholder="รหัสสมาชิก")
+          else
+            input#register.form-control.text-success(name="memberId" type='text' placeholder="รหัสสมาชิก")
+        
+        .form-group
+          label.col-form-label.text-primary(for="latitude") Latitude :
+          input#latitude.form-control.text-success(step='any' value=result.latitude type='number' name="latitude" placeholder="ละติจูด")
+        .form-group
+          label.col-form-label.text-primary(for="longitude") Longitude :
+          input#longitude.form-control.text-success(step='any' value=result.longitude type='number' name="longitude" placeholder="ลองติจูด")
+
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกแก้ไข

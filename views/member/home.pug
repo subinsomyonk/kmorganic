@@ -1,0 +1,229 @@
+extends ../layout
+
+block content
+  script.
+    //- for change Eng YYYY-mm-dd to dd/mm/yyyy of Thai
+    function EngThaiDate(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      return ddmmyyyy;
+    }
+
+  .row
+    .col-md-12
+      h1.text-primary #{title}
+      p.lead.text-success #{caption}
+      hr
+  .row
+    .col-md-12
+      h3.text-primary ตรวจสอบ ข้อมูลของสมาชิก
+      form(method='POST' action='/member/home')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-3.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText" placeholder="find with Member ID")
+        else
+          input(type="text" name="findText" id="findText" placeholder="find with Member ID")
+        button.col-md-3.btn.btn-primary(type='submit') ค้นหา
+      hr
+  .row
+    .col-md-12
+      h4.text-primary FOUND MEMBER ID    
+
+      if result
+
+        table-responsive
+          <table id="dataTable" class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>NO.</th> 
+                  <th>MEMBER ID</th>
+                  <th>HOME NO.</th>
+                  <th>GROUP NO.</th>
+                  <th>LOCATION</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              each i in result
+                  <tr>
+                    <td> #{ii++} </td>
+                    <td>
+                      a( href="/member/info/"+ i.memberId+'/'+findText)  #{i.memberId}
+                    </td>
+                    <td> #{i.homeNo} </td>
+                    <td> #{i.groupNo} </td>
+                    <td> #{i.village} #{i.subDistrict} #{i.district} #{i.province}</td>
+                  </tr>
+            </tbody>
+            <caption>รายการที่ค้นหาด้วย คำว่า #{findText} </caption>
+          </table>
+  .row
+    .col-md-12
+      if memberResult
+        hr
+        h4.text-primary MEMBER : #{memberResult[0].memberId}
+        
+        table-responsive
+          table.table.table-hover.bg-gray-800
+            caption สมาชิกเลขที่ #{memberResult[0].memberId} อ้างอิง IDCARD #{memberResult[0].IDCARD}
+            tbody
+              each j in memberResult
+                tr
+                  th.text-right  รหัสสมาชิก : 
+                  td.text-success #{j.memberId}
+                tr
+                  th.text-right บ้านเลขที่ :
+                  td.text-success #{j.homeNo}
+                tr
+                  th.text-right หมู่ :
+                  td.text-success #{j.groupNo}
+                tr
+                  th.text-right  บ้าน : 
+                  td.text-success #{j.village}
+                tr
+                  th.text-right ตำบล  :
+                  td.text-success #{j.subDistrict}
+                tr
+                  th.text-right อำเภอ :
+                  td.text-success #{j.district}
+
+                tr
+                  th.text-right  จังหวัด : 
+                  td.text-success #{j.province}
+                tr
+                  th.text-right ไปรษณีย์ :
+                  td.text-success #{j.postCode}
+                tr
+                  th.text-right ประเภท :
+                  td.text-success #{j.memberType}
+                tr
+                  th.text-right หุ้น : 
+                  td.text-success #{j.shareHolder}
+                tr
+                  th.text-right สมัคร  :
+                  td.text-success=(j.register.getDate() < 10 ? '0'+j.register.getDate(): j.register.getDate())+'/'+(j.register.getMonth() < 10 ? '0'+(j.register.getMonth()+1): (j.register.getMonth()+1))+'/'+(j.register.getFullYear()+543)
+                tr
+                  th.text-right โทร :
+                  td.text-success #{j.phone}
+                tr
+                  th.text-right หมายเหตุ : 
+                  td.text-success #{j.notes}
+                tr
+                  th.text-right สถานนะ  :
+                  td.text-success #{j.statusId}
+                tr
+                  th.text-right สร้าง : 
+                  td.text-success=(j.createdAt.getDate() < 10 ? '0'+j.createdAt.getDate(): j.createdAt.getDate())+'/'+(j.createdAt.getMonth() < 10 ? '0'+(j.createdAt.getMonth()+1): (j.createdAt.getMonth()+1))+'/'+(j.createdAt.getFullYear()+543)
+                tr
+                  th.text-right ปรับปรุง :
+                  td.text-success=(j.updatedAt.getDate() < 10 ? '0'+j.updatedAt.getDate(): j.updatedAt.getDate())+'/'+(j.updatedAt.getMonth() < 10 ? '0'+(j.updatedAt.getMonth()+1): (j.updatedAt.getMonth()+1))+'/'+(j.updatedAt.getFullYear()+543)
+    .row
+      .col-md-12
+
+        if familyResult && memberResult[0].memberType !='วิสามัญ'
+          - let kk = 0
+          hr 
+                
+          if familyResult.length  != 0 && memberResult[0].memberType !='วิสามัญ'
+            h4.text-primary #{familyResult[0].memberId} FAMILY
+          table-responsive
+            table.table.table-hover.bg-gray-8000
+              
+              thead
+                tr.bg-success
+                  th No.
+                  th ชื่อ-สกุล
+                  th บัตรประชาชน
+                  th วันเกิด
+                  th เพศ
+                  th โทร
+                  th หมายเหตุ
+                  th สถานะ
+                  th สร้าง
+                  th ปรับปรุง
+              tbody
+                each oo in familyResult  
+
+                  if memberResult[0].IDCARD == oo.IDCARD
+                    tr.text-primary
+                      th=(++kk)   
+                      td #{oo.firstName}  #{oo.lastName} 
+                      td= oo.IDCARD
+                      td=(oo.birthDate.getDate() < 10 ? '0'+oo.birthDate.getDate(): oo.birthDate.getDate())+'/'+(oo.birthDate.getMonth() < 10 ? '0'+(oo.birthDate.getMonth()+1): (oo.birthDate.getMonth()+1))+'/'+(oo.birthDate.getFullYear()+543)
+
+                      td #{oo.gender}
+
+                      td= oo.phone
+                      td= oo.notes
+                      td.text-center= oo.statusId 
+                      td=(oo.createdAt.getDate() < 10 ? '0'+oo.createdAt.getDate(): oo.createdAt.getDate())+'/'+(oo.createdAt.getMonth() < 10 ? '0'+(oo.createdAt.getMonth()+1): (oo.createdAt.getMonth()+1))+'/'+(oo.createdAt.getFullYear()+543)
+                      td=(oo.updatedAt.getDate() < 10 ? '0'+oo.updatedAt.getDate(): oo.updatedAt.getDate())+'/'+(oo.updatedAt.getMonth() < 10 ? '0'+(oo.updatedAt.getMonth()+1): (oo.updatedAt.getMonth()+1))+'/'+(oo.updatedAt.getFullYear()+543)
+                  else   
+                    tr.text-success
+                      th=(++kk)   
+                      td #{oo.firstName}  #{oo.lastName}
+                      td= oo.IDCARD
+                      td=(oo.birthDate.getDate() < 10 ? '0'+oo.birthDate.getDate(): oo.birthDate.getDate())+'/'+(oo.birthDate.getMonth() < 10 ? '0'+(oo.birthDate.getMonth()+1): (oo.birthDate.getMonth()+1))+'/'+(oo.birthDate.getFullYear()+543)
+
+                      td #{oo.gender}
+
+                      td= oo.phone
+                      td= oo.notes
+                      td.text-center= oo.statusId 
+                      td=(oo.createdAt.getDate() < 10 ? '0'+oo.createdAt.getDate(): oo.createdAt.getDate())+'/'+(oo.createdAt.getMonth() < 10 ? '0'+(oo.createdAt.getMonth()+1): (oo.createdAt.getMonth()+1))+'/'+(oo.createdAt.getFullYear()+543)
+                      td=(oo.updatedAt.getDate() < 10 ? '0'+oo.updatedAt.getDate(): oo.updatedAt.getDate())+'/'+(oo.updatedAt.getMonth() < 10 ? '0'+(oo.updatedAt.getMonth()+1): (oo.updatedAt.getMonth()+1))+'/'+(oo.updatedAt.getFullYear()+543)
+              caption  สมาชิกรหัส #{familyResult[0].memberId} มีจำนวนคนในครอบครัว #{kk} คน
+  .row
+    .col-md-12
+
+      if areaResult && memberResult[0].memberType !='วิสามัญ'
+        - let j = 0;
+        - let totalSize = 0;
+        hr
+        h4.text-primary #{areaResult[0].memberId} AREA
+
+        table-responsive   
+          table.table.table-hover.bg-gray-8000 
+            thead
+              tr.bg-success
+                th No.
+                th เลขที่แปลง
+                th ชื่อ
+                th พื้นที่(ไร่)
+                th อ้างอิง
+                th บ้าน
+                th ตำบล
+                th อำเภอ
+                th จังหวัด
+                th ละติจูด
+                th ลองติจูด
+                th ลงทะเบียน
+                th หมายเหตุ
+                th สร้าง
+                th ปรับปรุง
+            tbody
+              each jj in areaResult
+                - totalSize +=jj.size;
+                tr.text-success
+                  th=(++j)   
+                  td #{jj.areaId}
+                  td= jj.areaName
+                  td.text-center= jj.size
+                  td= jj.referId
+                  td= jj.village
+                  td= jj.subDistrict
+                  td= jj.district
+                  td= jj.province
+                  td= jj.latitude
+                  td= jj.longitude
+                  td=(jj.register.getDate() < 10 ? '0'+jj.register.getDate(): jj.register.getDate())+'/'+(jj.register.getMonth() < 10 ? '0'+(jj.register.getMonth()+1): (jj.register.getMonth()+1))+'/'+(jj.register.getFullYear()+543)
+                  td= jj.notes
+                  td=(jj.createdAt.getDate() < 10 ? '0'+jj.createdAt.getDate(): jj.createdAt.getDate())+'/'+(jj.createdAt.getMonth() < 10 ? '0'+(jj.createdAt.getMonth()+1): (jj.createdAt.getMonth()+1))+'/'+(jj.createdAt.getFullYear()+543)
+                  td=(jj.updatedAt.getDate() < 10 ? '0'+jj.updatedAt.getDate(): jj.updatedAt.getDate())+'/'+(jj.updatedAt.getMonth() < 10 ? '0'+(jj.updatedAt.getMonth()+1): (jj.updatedAt.getMonth()+1))+'/'+(jj.updatedAt.getFullYear()+543)
+            caption  สมาชิกรหัส #{areaResult[0].memberId} มีจำนวน #{j} แปลง #{totalSize} ไร่

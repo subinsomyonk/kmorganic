@@ -1,0 +1,142 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Add )
+  p.lead.text-success #{caption} : ( เพิ่ม )
+  hr
+  if(findText)
+    //- a(href="/member/findText?findText="+findText) << BACK
+    a.btn.btn-outline-dark(href="/member/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    //- a(href="/member/findText?findText=") << BACK
+    a.btn.btn-outline-dark(href="/member/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+
+  if(payload)
+    - let register = new Date(payload.register);
+    - let dd = register.getDate();
+    - let mm = register.getMonth()+1;
+    - let yyyy = register.getFullYear();
+    - dd = (dd < 10 ? '0' : '') + dd;
+    - mm = (mm < 10 ? '0' : '') + mm;
+    - let yyyymmdd = yyyy+'-'+mm+'-'+dd;
+
+  form(method='POST' action='/member/add')
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          input(name='findText_', type='hidden', value= findText)
+          label.col-form-label.text-primary(for='memberId') MEMBER ID :
+          if(payload)
+            input#memberId.form-control.text-success( value=payload.memberId name="memberId" type='text' placeholder="เลขที่สมาชิก") 
+          else
+            input#memberId.form-control.text-success(name="memberId" type='text' minlength=13 maxlength=13 placeholder="เลขที่สมาชิก") 
+        .form-group
+          label.col-form-label.text-primary(for='homeNo') Home No:
+          if(payload)
+            input#homeNo.form-control.text-success(value=payload.homeNo type='text' name ="homeNo" placeholder="บ้านเลขที่")
+          else
+            input#homeNo.form-control.text-success(name="homeNo" type='text' placeholder="บ้านเลขที่")
+        .form-group
+          label.col-form-label.text-primary(for='groupNo') Group No:
+          if(payload)
+            input#groupNo.form-control.text-success(value=payload.groupNo type='number' name ="groupNo" placeholder="หมู่")
+          else
+            input#groupNo.form-control.text-success(type='number' name ="groupNo" placeholder="หมู่")
+        .form-group
+          label.col-form-label.text-primary(for='village') VILLAGE:
+          if(payload)
+            input#village.form-control.text-success(value=payload.village type='text' name ="village" placeholder="บ้าน")
+          else
+            input#village.form-control.text-success(type='text' name ="village" placeholder="บ้าน")
+        .form-group
+          label.col-form-label.text-primary(for='subDistrict') Sub District:
+          if(payload)
+            input#subDistrict.form-control.text-success(value=payload.subDistrict type='text' name ="subDistrict" placeholder="ตำบล")
+          else
+            input#subDistrict.form-control.text-success(type='text' name ="subDistrict" placeholder="ตำบล")
+        .form-group
+          label.col-form-label.text-primary(for='district') District:
+          if(payload)
+            input#district.form-control.text-success(value=payload.district type='text' name ="district" placeholder="อำเภอ")
+          else
+            input#district.form-control.text-success(type='text' name ="district" placeholder="อำเภอ")
+        .form-group
+          label.col-form-label.text-primary(for='province') Province:
+          if(payload)
+            input#province.form-control.text-success(value=payload.province type='text' name ="province" placeholder="จังหวัด")
+          else
+            input#province.form-control.text-success(type='text' name ="province" placeholder="จังหวัด")
+ 
+        .form-group
+          label.col-form-label.text-primary(for='postCode') Post Code:
+          if(payload)
+            input#postCode.form-control.text-success(value=payload.postCode type='text' name ="postCode" placeholder="รหัสไปรษณีย์")
+          else
+            input#postCode.form-control.text-success(type='text' name ="postCode" placeholder="รหัสไปรษณีย์")
+ 
+      .col-md-6
+        label.col-form-label.text-primary(for='memberType') MEMBER TYPE : 
+        .form-group.form-check.form-check-inline
+          input#memberType.form-check-input(name="memberType" type="radio" onclick="EnableDisableTextBox()" checked value="สามัญ")
+          label.col-form-label.text-success(for='memberType') สามัญ:
+        .form-group.form-check.form-check-inline
+          input#memberType.form-check-input(name="memberType" type="radio" onclick="EnableDisableTextBox()" value="วิสามัญ" )
+          label.col-form-label.text-success(for='memberType') วิสามัญ:
+
+        .form-group#organizeNameGroup(style="display:none")
+          label.col-form-label.text-primary(for='organizeName') Organize Name:
+          if(payload)
+            input#organizeName.form-control.text-success(name="organizeName" type='text' value=payload.organizeName placeholder="ชื่อองค์กร")
+          else
+            input#organizeName.form-control.text-success(name="organizeName" type='text' placeholder="ชื่อองค์กร")
+
+
+
+        .form-group
+          label.col-form-label.text-primary(for='shareHolder') Share Holder:
+          if(payload)
+            input#shareHolder.form-control.text-success(value=payload.shareHolder type='number' name ="shareHolder" placeholder="จำนวนหุ้น")
+          else
+            input#shareHolder.form-control.text-success(type='number' name ="shareHolder" placeholder="จำนวนหุ้น")
+
+        .form-group
+          label.col-form-label.text-primary(for='phone') Phone:
+          if(payload)
+            input#phone.form-control.text-success(name="phone" type='text' value=payload.phone placeholder="โทรศัพท์")
+          else
+            input#phone.form-control.text-success(name="phone" type='text' placeholder="โทรศัพท์")
+        .form-group
+          label.col-form-label.text-primary(for='register') Register Date:
+          if(payload)
+            input#register.form-control.text-success(value=yyyymmdd type='date' name ="register" placeholder="วันที่สมัคร")
+          else
+            input#register.form-control.text-success(type='date' name ="register" placeholder="วันที่สมัคร")
+        .form-group
+          label.col-form-label.text-primary(for='IDCARD') ID CARD:
+          if(payload)
+            input#IDCARD.form-control.text-success(value=payload.IDCARD type='text' name ="IDCARD" placeholder="บัตรประชาชน")
+          else
+            input#IDCARD.form-control.text-success(type='text' name ="IDCARD" placeholder="บัตรประชาชน")
+        
+        .form-group
+          label.col-form-label.text-primary(for='notes') หมายเหตุ:
+          if(payload)
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") #{payload.notes}
+          else
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ")
+        button.col-md-6.btn.btn-primary(type='submit') บันทึกเพิ่มสมาชิก
+
+  script.
+    function EnableDisableTextBox(){    
+      if ($('#memberType').is(":checked")){
+        //- organizeNameGroup, organizeName
+        $('#organizeNameGroup').hide('slow');
+        $('#organizeName').val('');
+      }
+      else{
+        $('#organizeNameGroup').show('slow');
+      }
+    }

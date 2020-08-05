@@ -1,0 +1,379 @@
+extends ../layout
+
+block content
+  script. 
+    function onClickShowAuditAll(yearName,memberId,orders){
+      var textCaption = 'ผลการตรวจสอบ เลขที่ปี '+yearName +' ของสมาชิก '+ memberId+' ครั้งที่ '+orders+ ' » ';
+      $('#headCaptionlistAuditAllMember').html(textCaption);
+ 
+      $.ajax('/audit/member/auditListAll/'+yearName+'/'+memberId+'/'+orders+'/'+_idProduce,{
+        data:{},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          //- $('#headCaptionlistAuditAllMember').html(textCaption);
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var confirm = data.confirm;
+          var resultAudit = data.resultAudit;
+
+          var totalEstimate = 0.00; 
+          var totalSizeAction = 0.00;
+          var totalRow = 0;
+
+          if(confirm == 'Success!'){
+            var textHtml = '<table  class="table table-hover">';
+            textHtml +='<thead>';
+            textHtml +='<tr class="bg-success">';
+            textHtml +='<th>No.';
+            textHtml +='</th>';
+            textHtml +='<th>AREA ID';
+            textHtml +='</th>';
+            textHtml +='<th>PLANT';
+            textHtml +='</th>';
+
+
+            textHtml +='<th class="text-center">ACTION SIZE';
+            textHtml +='</th>';
+
+            textHtml +='<th class="text-center">PERCENT(100%)';
+            textHtml +='</th>';
+            textHtml +='<th class="text-center">ESTIMATE(KG)';
+            textHtml +='</th>';
+            textHtml +='<th class="text-center">RESULT';
+            textHtml +='</th>';
+
+            
+            textHtml +='<th>COMMENT';
+            textHtml +='</th>';
+            textHtml +='</tr>';
+            textHtml +='</thead>';
+            
+            textHtml +='<tbody>';            
+            $(resultAudit).each(function(i, val) {
+              
+              totalEstimate += val.estimate;
+              totalSizeAction += val.sizeAction;
+              totalRow++;
+              if(val.result){
+                textHtml += '<tr class="text-success">';
+              }
+              else{
+                textHtml += '<tr class="text-danger">';
+              }
+              textHtml += '<th>';
+              textHtml += (++i) +'.';
+              textHtml += '</th>';
+              textHtml += '<td>';
+              textHtml += val.areaId;
+              textHtml += '</td>';
+              textHtml += '<td>';
+              textHtml += val.plantNameTh;
+              textHtml += '</td>';
+              textHtml += '<td class="text-center">';
+              textHtml += val.sizeAction;
+              textHtml += '</td>';
+
+              textHtml += '<td class="text-center">';
+              textHtml += val.percentScore;
+              textHtml += '</td>';
+              textHtml += '<td class="text-center">';
+              textHtml += val.estimate;
+              textHtml += '</td>';
+              textHtml += '<td class="text-center">';
+              if(val.result){
+                textHtml += 'ผ่าน';
+              }
+              else{
+                textHtml += 'ไม่ผ่าน';
+              } 
+              textHtml += '</td>';
+
+              textHtml += '<td>';
+              textHtml += val.comment;
+              textHtml += '</td>';
+              textHtml += '</tr>';
+            });
+            textHtml +='</tbody>';
+            textHtml +='<caption>จำนวน   '+totalRow+'  รายการ พื้นที่ '+ totalSizeAction+' ไร่ คาดหวังผลผลิต ' + totalEstimate + ' กิโลกรัม</caption>';
+
+            textHtml +='</table>';
+            $('#modalbodyListAudit').html(textHtml);
+          }          
+        }
+      });
+    }
+
+    function onClickSave(){
+      var comment = $('#comment').val().trim();
+      var percentScore = 0.00;
+      var estimate = 0.00;     
+      var result = $("input[name='result']:checked").val();
+      var _idProduce = $('#_idProduce').html().trim();
+      var staffName = $('#staffName').html().trim();
+      
+      var _idProduce = $('#_idProduce').html();
+      var yearName = $('#_yearName').html();
+      var memberId = $('#_memberId').html();
+      var orders =  $('#_orders').html();
+      var ii = $('#_ii').html();
+      var areaName = $('#_areaName').html();
+      //- console.log(_idProduce);
+
+
+      if(result=='false'){
+        //- alert('ไม่ผ่าน');
+        percentScore = 0.00;
+        estimate = 0.00;
+        $('#percentScore').val('0.00');
+        $('#estimate').val('0.00');
+      }
+      else{
+        percentScore = $('#percentScore').val();
+        estimate = $('#estimate').val();
+      }
+
+      $.ajax('/audit/member/auditSave/'+yearName+'/'+memberId+'/'+orders+'/'+_idProduce,{
+        data:{
+          comment : comment,
+          percentScore : percentScore,
+          estimate : estimate,
+          result : result,
+          staffName : staffName,
+          areaName : areaName
+          },
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#resultProcess').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var newAudit = data.newAudit;
+          var resultProcess = data.resultProcess;
+          $('#resultProcess').html(resultProcess);
+        }
+      });
+
+    }
+    function onClickAuditItem(yearName,memberId,orders,_idProduce,ii,info, areaName){
+      var textCaption = 'รายละเอียดตรวจสอบ เลขที่ปี '+yearName +' ของสมาชิก '+ memberId+' ครั้งที่ '+orders+ ' รายการที่ :'+ii+' » ';    
+      //- console.log(yearName+','+memberId+','+orders+','+_idProduce+','+ii);
+      //- alert(textCaption + ' areaName :: '+ areaName);
+      $('#_idProduce').html(''+_idProduce);
+      $('#_yearName').html(''+yearName);
+      $('#_memberId').html(''+memberId);
+      $('#_orders').html(''+orders);
+      $('#_ii').html(''+ii);
+      $('#_areaName').html(''+areaName);
+
+      $('#headCaptionListAuditMember').html(textCaption);
+
+      $.ajax('/audit/member/auditListItem/'+yearName+'/'+memberId+'/'+orders+'/'+_idProduce,{
+        data:{areaName : areaName},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#resultProcess').html('');
+          $('#modalBodyListAuditMember').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          console.log('result'+result);
+          var data = $.parseJSON(result);
+          var confirm = data.confirm;
+          var resultAudit = data.resultAudit;
+          var textHtml = '';
+          if(data.confirm =='failed'){
+
+            textHtml +='<div class="form-group ">';
+            textHtml +='<input type="hidden" name="_csrf" value =_csrf />';
+            textHtml +='<table class="table table-hover">';
+            
+            textHtml +='<tbody>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">Comment : </th>';
+            textHtml +='<td><textArea class="text-success" id="comment" name="comment" placeholder="หมายเหตุ" col="200" row="4"></textArea></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">Percent Score ( 100 % ): </th>';
+            textHtml +='<td class="text-success"><input  class="text-success" type="number" id="percentScore" name="percentScore" min=0 max=100 placeholder="0"/></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">ESTIMATE PRODUCT (KG) : </th>';
+            textHtml +='<td class="text-success"><input  class="text-success" type="number" id="estimate" name="estimate" min=0 max=10000000 placeholder=0.00 /></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">RESULT (PASS OR FAIL) : </th>';
+            textHtml +='<td class="text-success"> ';
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result0" name="result" checked value= true>';
+            textHtml +='<label class="form-check-label" for="result0"> ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result1" name="result" value= false >';
+            textHtml +='<label class="form-check-label" for="result1"> ไม่ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            textHtml +='</td>';
+            textHtml +='</tr>';
+            textHtml +='</tbody>';
+            textHtml +='<caption>ยังไม่ได้ทำการ คึย์ข้อมูล !</caption>';
+            textHtml +='</table>';
+            textHtml +='</div>';
+            $('#modalBodyListAuditMember').html(textHtml);
+          }
+          else{
+
+ 
+            textHtml +='<div class="form-group ">';
+            textHtml +='<input type="hidden" name="_csrf" value =_csrf />';
+            textHtml +='<table class="table table-hover bg-gray-800">';
+            textHtml +='<tbody>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">Comment : </th>';
+            textHtml +='<td><textArea class="text-success" id="comment" name="comment" placeholder="หมายเหตุ" col="200" row="4">'+ resultAudit[0].comment +' </textArea></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">Percent Score ( 100 % ): </th>';
+            textHtml +='<td class="text-success"><input  class="text-success" type="number" id="percentScore" name="percentScore" min=0 max=100 placeholder="0" value='+resultAudit[0].percentScore+' /></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">ESTIMATE PRODUCT (KG) : </th>';
+            textHtml +='<td class="text-success"><input  class="text-success" type="number" id="estimate" name="estimate" min=0 max=10000000 placeholder=0.00 value='+resultAudit[0].estimate+' /></td>';
+            textHtml +='</tr>';
+            textHtml +='<tr>';
+            textHtml +='<th class="text-primary text-center">RESULT (PASS OR FAIL) : </th>';
+            textHtml +='<td class="text-success"> ';
+            
+            
+            if(resultAudit[0].result == true){
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result0" name="result" checked value= true>';
+            textHtml +='<label class="form-check-label" for="result0"> ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result1" name="result" value= false >';
+            textHtml +='<label class="form-check-label" for="result1"> ไม่ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            }
+            else{
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result0" name="result"  value= true>';
+            textHtml +='<label class="form-check-label" for="result0"> ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            textHtml +='<div class="form-check">';
+            textHtml +='<input type="radio" class="form-check-input" id="result1" name="result" checked value= false >';
+            textHtml +='<label class="form-check-label" for="result1"> ไม่ผ่านการตรวจสอบ</label>';
+            textHtml +='</div>';
+            }
+            textHtml +='</td>';
+            textHtml +='</tr>';
+            textHtml +='</tbody>';
+            textHtml +='<caption>'+info+'</caption>';
+            textHtml +='</table>';
+            textHtml +='</div>';
+            $('#modalBodyListAuditMember').html(textHtml);
+
+
+
+
+
+          }
+        }
+      });
+    }
+
+
+
+
+  h1.text-primary #{title}
+    i.far.fa-calendar-check
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-12
+      h4.text-warning 1#. ปีการเพาะปลูก #{yearName} ครั้งที่ #{orders}
+      h4.text-warning 2#. สมาชิก #{memberId}
+      h4.text-warning 3#. เลือกรายการแปลงเพาะปลูกที่จะตรวจสอบ         
+      //- hr
+      //- a(data-target='.bd-listAuditAllMember-modal-lg', data-toggle='modal', href='#', onClick="clickMeInfo1(\'"+ i._id+"\')")   #{(ii+1)}                  
+      a.btn.btn-primary(data-target='.bd-listAuditAllMember-modal-lg', data-toggle='modal', href='#' onClick="onClickShowAuditAll(\'"+yearName+"\',\'"+memberId+ "\',\'"+orders+"\')") ผลการตรวจสอบ เลขที่ปี #{yearName} ของสมาชิก #{memberId} ครั้งที่ #{orders} »    
+  .row
+    .col-md-12
+      if resultProduceLength > 0
+        table#dataTable.table.table-hover.bg-gray-800
+          thead
+            tr.bg-success
+              th ลำดับ.
+              th เลขที่แปลง
+              th ชื่อแปลง
+              th พันธุ์พืช
+              th จำนวนไร่ที่ปลูก 
+              th สถานที่
+              th ขนาดแปลง(ไร่)
+              th หมายเหตุ
+              th วันที่ลงทะเบียนปลูก
+
+          tbody
+            - var ii=0 
+            - var info='';
+            each i in resultProduce
+              - info = 'แปลง: '+i.areaId +', ชื่อ: '+i.areaName+', สถานที่: '+i.location+', ขนาด :'+i.size+' ไร่, เพาะปลูก: '+i.sizeAction+' ไร่ ' +',<br/> ปลูก: '+i.plantNameTh ;
+              tr
+                th 
+                  a(data-target='.bd-listAuditEachAreaId-modal-lg', data-toggle='modal', href="#" onClick="onClickAuditItem(\'"+yearName+"\',\'"+memberId+ "\',\'"+orders+"\',\'"+i._id+"\',\'"+ (ii+1) +"\',\'"+info+"\',\'"+i.areaName+"\')") #{(++ii)}
+                td= i.areaId
+                td= i.areaName
+                td= i.plantNameTh
+                td.text-center= i.sizeAction
+                td= i.location
+                td.text-center= i.size
+                td= i.notes
+                td=(i.updatedAt.getDate() < 10 ? '0'+i.updatedAt.getDate(): i.updatedAt.getDate())+'/'+(i.updatedAt.getMonth() < 10 ? '0'+(i.updatedAt.getMonth()+1): (i.updatedAt.getMonth()+1))+'/'+(i.updatedAt.getFullYear()+543)
+                
+        caption สมาชิก : #{memberId} จำนวนแปลง ลงทะเบียน #{resultProduceLength} รายการ
+  .row
+    .col-md-12
+      //- bd-listAuditEachAreaId-modal-lg
+      .modal.fade.bd-listAuditEachAreaId-modal-lg(role='dialog', aria-hidden='true', aria-labelledby='myLargeModalLabel', tabindex='-1')
+        .modal-dialog.modal-lg
+          .modal-content
+            .modal-header.bg-dark
+              h3#headCaptionListAuditMember.text-success รายละเอียด แปลงเพาะปลูก
+              span#_idProduce(style display:none)
+              span#_yearName
+              span#_memberId
+              span#_orders
+              span#_ii
+              span#staffName #{user.profile.name}
+              span#_areaName
+
+            .modal-body#modalBodyListAuditMember
+              p Not Found Data !  yearName,memberId,orders,_idProduce
+            .modal-footer
+              p#resultProcess.text-warning
+              button.btn.btn-success( type='button' onClick="onClickSave()") Save :   บันทึก ....   #{_idProduce}
+              button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+  
+  //- .row
+  //-   .col-md-12
+
+  .modal.fade.bd-listAuditAllMember-modal-lg(role='dialog', aria-hidden='true', aria-labelledby='myLargeModalLabel', tabindex='-1')
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header.bg-dark
+          h4#headCaptionlistAuditAllMember.text-success
+        .modal-body#modalbodyListAudit
+
+        .modal-footer
+          button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+

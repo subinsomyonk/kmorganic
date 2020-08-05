@@ -1,0 +1,165 @@
+extends ../layout
+
+block content
+  
+
+  h1.text-primary #{title} : ( Edit )
+  p.lead.text-success #{caption} : ( แก้ไข )
+  hr
+  //- a(href="/member/findText?findText="+findText) << BACK
+  a.btn.btn-outline-dark(href="/member/findText?findText="+findText) 
+    i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  -  let registers = new Date(payload.register);
+  -  let dd = registers.getDate();
+  -  let mm = registers.getMonth()+1;
+  -  let yyyy = registers.getFullYear();
+  -  dd = (dd < 10 ? '0' : '') + dd;
+  -  mm = (mm < 10 ? '0' : '') + mm;
+  -  let yyyymmdd = yyyy+'-'+mm+'-'+dd; 
+
+  //- p=pyyyymmdd
+  form(method='POST' action='/member/edit/update/'+ _id +'/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='memberId') MEMBER ID :
+          if(payload)
+            input#memberId.form-control.text-success(name="memberId" readOnly type='text' value=payload.memberId placeholder="เลขที่สมาชิก") 
+          else
+            input#memberId.form-control.text-success(name="memberId" type='text' minlength=13 maxlength=13 placeholder="เลขที่สมาชิก") 
+        .form-group
+          label.col-form-label.text-primary(for='homeNo') Home No:
+          if(payload)
+            input#homeNo.form-control.text-success(name="homeNo" type='text' value=payload.homeNo placeholder="บ้านเลขที่")
+          else
+            input#homeNo.form-control.text-success(name="homeNo" type='text' placeholder="บ้านเลขที่")
+        .form-group
+          label.col-form-label.text-primary(for='groupNo') Group No:
+          if(payload)
+            input#groupNo.form-control.text-success(name="groupNo" type='number' value=payload.groupNo placeholder="หมู่")
+          else
+            input#groupNo.form-control.text-success(name="groupNo" type='number' placeholder="หมู่")
+        .form-group
+          label.col-form-label.text-primary(for='village') VILLAGE:
+          if(payload)
+            input#village.form-control.text-success(name="village" type='text' value=payload.village placeholder="บ้าน")
+          else
+            input#village.form-control.text-success(name="village" type='text' placeholder="บ้าน")
+        .form-group
+          label.col-form-label.text-primary(for='subDistrict') Sub District:
+          if(payload)
+            input#subDistrict.form-control.text-success(name="subDistrict" type='text' value=payload.subDistrict placeholder="ตำบล")
+          else
+            input#subDistrict.form-control.text-success(name="subDistrict" type='text' placeholder="ตำบล")
+        .form-group   
+          label.col-form-label.text-primary(for='district') District:
+          if(payload)
+            input#district.form-control.text-success(name="district" type='text' value=payload.district placeholder="อำเภอ")
+          else
+            input#district.form-control.text-success(name="district" type='text' placeholder="อำเภอ")
+        .form-group
+          label.col-form-label.text-primary(for='province') Province:
+          if(payload)
+            input#province.form-control.text-success(name="province" type='text' value=payload.province placeholder="จังหวัด")
+          else
+            input#province.form-control.text-success(name="province" type='text' placeholder="จังหวัด")
+ 
+        .form-group
+          label.col-form-label.text-primary(for='postCode') Post Code:
+          if(payload)
+            input#postCode.form-control.text-success(name="postCode" type='text' value=payload.postCode placeholder="รหัสไปรษณีย์")
+          else
+            input#postCode.form-control.text-success(name="postCode" type='text' placeholder="รหัสไปรษณีย์")
+      .col-md-6
+        label.col-form-label.text-primary(for='memberType') MEMBER TYPE : 
+
+        if(payload.memberType=='สามัญ')
+          .form-group.form-check.form-check-inline
+            input#memberType.form-check-input(name="memberType" onclick="EnableDisableTextBox()"  type="radio" checked value="สามัญ")
+            label.col-form-label.text-success(for='memberType') สามัญ:
+          .form-group.form-check.form-check-inline
+            input#memberType.form-check-input(name="memberType"  onclick="EnableDisableTextBox()"  type="radio" value="วิสามัญ")
+            label.col-form-label.text-success(for='memberType') วิสามัญ:
+        else
+          .form-group.form-check.form-check-inline
+            input#memberType.form-check-input(name="memberType"  onclick="EnableDisableTextBox()"  type="radio" value="สามัญ")
+            label.col-form-label.text-success(for='memberType') สามัญ:
+          .form-group.form-check.form-check-inline
+            input#memberType.form-check-input(name="memberType"  onclick="EnableDisableTextBox()"  type="radio" checked value="วิสามัญ")
+            label.col-form-label.text-success(for='memberType') วิสามัญ:
+        
+
+        if(payload.memberType=='วิสามัญ')
+          .form-group#organizeNameGroup
+            label.col-form-label.text-primary(for='organizeName') Organize Name:
+            if(payload)
+              input#organizeName.form-control.text-success(name="organizeName" type='text' value=payload.organizeName placeholder="ชื่อองค์กร")
+            else
+              input#organizeName.form-control.text-success(name="organizeName" type='text' placeholder="ชื่อองค์กร")
+        else
+          .form-group#organizeNameGroup(style:'display:none')
+            label.col-form-label.text-primary(for='organizeName') Organize Name:
+            if(payload)
+              input#organizeName.form-control.text-success(name="organizeName" type='text' value=payload.organizeName placeholder="ชื่อองค์กร")
+            else
+              input#organizeName.form-control.text-success(name="organizeName" type='text' placeholder="ชื่อองค์กร")
+
+
+
+
+        .form-group
+          label.col-form-label.text-primary(for='shareHolder') Share Holder:
+          if(payload)
+            input#shareHolder.form-control.text-success(name="shareHolder" type='number' value=payload.shareHolder placeholder="จำนวนหุ้น")
+          else
+            input#shareHolder.form-control.text-success(name="shareHolder" type='number' placeholder="จำนวนหุ้น")
+
+        .form-group
+          label.col-form-label.text-primary(for='phone') Phone:
+          if(payload)
+            input#phone.form-control.text-success(name="phone" type='text' value=payload.phone placeholder="โทรศัพท์")
+          else
+            input#phone.form-control.text-success(name="phone" type='text' placeholder="โทรศัพท์")
+        .form-group
+          label.col-form-label.text-primary(for='register') Register Date: 
+          if(payload)
+            input#register.form-control.text-success(name="register" type='date' value=yyyymmdd placeholder="วันที่สมัคร")
+          else
+            input#register.form-control.text-success(name="register" type='date' placeholder="วันที่สมัคร")
+        .form-group
+          label.col-form-label.text-primary(for='IDCARD') ID CARD:
+          if(payload)
+            input#IDCARD.form-control.text-success(name="IDCARD" type='text' value=payload.IDCARD placeholder="บัตรประชาชน")
+          else
+            input#IDCARD.form-control.text-success(name="IDCARD" type='text' placeholder="บัตรประชาชน")
+        .form-group
+          label.col-form-label.text-primary(for='notes') หมายเหตุ:
+          if(payload)
+            textarea#notes.form-control.text-success(name="notes" rows=3 placeholder="หมายเหตุ") #{payload.notes}
+          else
+            textarea#notes.form-control.text-success(name="notes" rows=3 placeholder="หมายเหตุ")
+        .form-group.custom-control.custom-checkbox
+          if(payload.statusId)
+            input#statusId.custom-control-input(name="statusId" type="checkbox" checked)
+          else
+            input#statusId.custom-control-input(name="statusId" type="checkbox")
+          label.custom-control-label.text-success(for='statusId') สถานะ ปกติ
+        .form-group
+          if(payload.createdAt)
+            label#createdAt.custom-control-label.text-primary() วันสร้าง #{payload.createdAt}
+          if(payload.updatedAt)
+            label#updatedAt.custom-control-label.text-primary() ปรับปรุงล่าสุด #{payload.updatedAt}
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกแก้ไข
+
+  script.
+    function EnableDisableTextBox(){    
+      if ($('#memberType').is(":checked")){
+        //- organizeNameGroup, organizeName
+        $('#organizeNameGroup').hide('slow');
+        $('#organizeName').val('');
+      }
+      else{
+        $('#organizeNameGroup').show('slow');
+      }
+    }

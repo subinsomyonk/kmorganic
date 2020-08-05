@@ -1,0 +1,223 @@
+extends ../layout
+
+block content
+    
+                  
+
+  h1.text-primary #{title}
+    i.fab.fa-bitcoin 
+  p.text-success.lead #{caption} 
+  hr
+  .row
+    .col-md-6
+      form.form-inline(method='POST' action='/receive/pay')
+        input(name='_csrf', type='hidden', value=_csrf) 
+        label(for="findText") ค้นหาด้วยเลขที่ใบรับซื้อ : 
+        if findText
+          input#findText.form-control(type="text", name="findText" placeholder="Receive No" value= findText)
+        else
+          input#findText.form-control(type="text", name="findText" placeholder="Receive No" value= findText)
+        button.btn.btn-primary.mb-2( type="submit" ) ค้นหา
+
+
+      button.btn.btn-success.btn-lg.btn-block(data-target=".bd-listPay-modal-lg" data-toggle="modal" type="submit" onclick="listPay()") แสดงรายการจ่ายปัจจุบัน
+
+
+
+      if resultReceive
+        .card
+          .card-body
+            h5.card-title.text-primary การจ่ายเงิน : Payment
+            hr
+            p#_id(style="display:none")=resultReceive[0]._id
+            input#_csrf_(name='_csrf_', type='hidden', value=_csrf)
+
+            //- // Default unchecked
+            .custom-control.custom-radio
+              input#payCash.custom-control-input(type='radio', name='pay' onclick="showText(0)" checked value="Cash")
+              label.custom-control-label(for='payCash') จ่ายเงินสด 
+            //- // Default checked
+            .custom-control.custom-radio
+              input#payCheque.custom-control-input(type='radio', name='pay'  onclick="showText(1)" style="display:hidden" value="Cheque")
+              label.custom-control-label(for='payCheque') จ่ายเช็ค
+              input#chequeText.form-control( name="chequeText" type="text" style="display:none" placeholder="เลขที่เช็ค")
+
+
+            - let allTotal = 0.00
+            for i in resultReceive[0].items
+              - allTotal +=i.totalPayArr
+              
+            - allTotal = allTotal.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");  
+
+            h1.text-center.text-danger= allTotal
+              span.text-success   บาท
+            button.btn.btn-primary.btn-lg.btn-block( type="button" onclick="onClkSave(\'"+resultReceive[0].receiveOrders+"\',\'"+resultReceive[0].currentDateTime+"\')")  บันทึกการจ่าย
+            p#confirm= false
+
+    .col-md-6
+      if resultReceive
+        p.text-danger='เลขที่ใบรับผลผลิต  :'+resultReceive[0].receiveOrders + '_' + resultReceive[0].currentDateTime
+
+        table.table
+          caption= 'MemberId : '+ resultReceive[0].memberId + ' Year :'+resultReceive[0].yearName+ ' RecNo# :'+ resultReceive[0].receiveOrders
+            tr.text-primary
+              th No
+              th รายการ
+              th %
+              th ความชื้น
+              th O/T
+              th ราคา/กก
+              th น้ำหนัก(กก)
+              th รวม
+          tbody
+            - let allTotal = 0.00
+            for i, j in resultReceive[0].items
+              tr.text-success
+                td=(j+1)+'.'
+                td=i.plantNameTh
+                td=i.percentArr
+                td=i.humidityArr
+                td=i.otArr
+                td.text-center=i.pricePerKGArr
+
+                - let totalWeightArr = i.totalWeightArr.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                td.text-right=totalWeightArr
+
+                - let totalPayArr = i.totalPayArr.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");              
+                - allTotal +=i.totalPayArr
+
+                td.text-right=totalPayArr
+
+            tr.bg-dark
+              th.text-right.text-success(colspan=7) รวม : 
+              - allTotal = allTotal.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              th.text-right.text-danger= allTotal
+  
+  //- listPay
+  .modal.fade.bd-listPay-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header.bg-dark
+          h3#headCaption.text-success รายการจ่ายล่าสุด
+        .modal-body#modalbodylistpay
+          p modalbodylistpay
+
+        .modal-footer
+          input#_csrf_(name='_csrf_', type='hidden', value=_csrf)                
+          button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+  script. 
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }   
+    function listPay(){
+      var _csrf = $('#_csrf_').val();
+      $.ajax('/receive/pay/list',{
+        data:{_csrf : _csrf},
+        type:'text',
+        method:'get',
+        beforeSend: function(){
+          $('#modalbodylistpay').html('');
+        },
+        error: function(){
+          alert('Error call onClkSave()');
+        },
+        success: function(result){ 
+          console.log(result.resultReceive.length);
+
+          var html = '<table class="table">';
+          html += '<thead><tr class="text-success">';
+          html += '<th>No.</th>';
+          html += '<th>RecNo</th>';
+          html += '<th>CurrentDateTime</th>';
+          html += '<th>MemberId</th>';
+          html += '<th>Type Pay</th>';
+          html += '<th>Refer</th>';
+          html += '<th>Pay</th>';
+          html += '</tr></thead>';
+          html += '<tbody>';
+
+          for(i=0; i < result.resultReceive.length; i++){
+            html += '<tr>';
+            html += '<th>'+(i+1)+'.</th>';
+            html += '<th>'+result.resultReceive[i].receiveOrders+'</th>';
+            html += '<th>'+result.resultReceive[i].currentDateTime+'</th>';
+            html += '<th>'+result.resultReceive[i].memberId+'</th>';
+            html += '<th>'+result.resultReceive[i].typePay+'</th>';
+            html += '<th>'+result.resultReceive[i].chequeInfo+'</th>';
+
+            var totPay = 0.00;
+
+            for(j=0; j<result.resultReceive[i].items.length;j++){
+              totPay += parseFloat(result.resultReceive[i].items[j].totalPayArr.toFixed(2));
+            }
+
+            
+            html += '<th>'+numberWithCommas(totPay.toFixed(2))+'</th>';
+            html += '</tr>'; 
+
+          }
+          html += '<caption>รายการจ่าย 20 รายการล่ารสุด </caption>'
+          html +='</tbody>'
+          html +='</table>'
+          //- resultReceive
+          $('#modalbodylistpay').html(html);
+        }
+      });
+
+
+      //- $('#modalbodylistpay').html('modalbodylistpay modalbodylistpay');
+    }
+    function showText(flagShow){
+      if(flagShow == 0)
+        $('#chequeText').hide();
+      else
+        $('#chequeText').show();
+    }
+    function onClkSave(receiveOrders, currentDateTime){
+      var okk = $('#confirm').html().trim();
+      if (okk=='false'){
+
+        var payVal = $("input[name='pay']:checked").val();
+        var chequeText = '';
+        var okChequeText = true;
+        var _id = $('#_id').html().trim();
+        if(payVal == 'Cheque'){
+          chequeText = $('#chequeText').val().trim();
+          if(chequeText ==''){
+            okChequeText = false;
+          }        
+        }
+        if(okChequeText){
+          
+          var _csrf = $('#_csrf_').val();
+          $.ajax('/receive/pay/saveReceive',{
+            data:{_csrf : _csrf, receiveOrders : receiveOrders, currentDateTime : currentDateTime, _id : _id, payVal : payVal, chequeText : chequeText},
+            type:'text',
+            method:'post',
+            beforeSend: function(){
+              //- $('#confirm').html(result.confirm);
+              //- alert(payVal + 'OKK =>> chequeText : ' + chequeText);
+            },
+            error: function(){
+              alert('Error call onClkSave()');
+            },
+            success: function(result){             
+              if(result.confirm){
+                alert(result.message);
+                $('#confirm').html(result.confirm);
+              }
+              else{
+                alert(result.message);
+                $('#confirm').html('false');
+                $('#confirm').html(result.confirm);
+              }
+            }
+          });
+        }
+        else{
+          alert('ตรวจสอบข้อมูล เลขที่เช็ค นะ....!');
+        }   
+      }  
+    }

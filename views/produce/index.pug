@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title}
+    i.far.fa-registered
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-6
+      h2.text-warning 1#. เลือกปีการเพาะปลูก
+      if yearResult
+        form(method='GET' action='/produce/produceMember')
+          .form-group
+            label(for="yearName") เลือกเลขที่ปี การเพาะปลูก:
+            select#yearName.form-control(name="yearName")
+              each i in yearResult
+                - let _idYear = i._id
+                option(value =  _idYear)   #{i.yearName}
+          button.col-md-2.btn.btn-success(type='submit') เลือก »
+    .col-md-6
+      //- h2.text-primary Heading2
+      //- p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- p
+      //-   a.btn.btn-primary(href='#', role='button') View details »
+    .col-md-6
+      //- h2.text-primary Heading3
+      //- p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- p
+      //-   a.btn.btn-danger(href='#', role='button') View details »
+    .col-md-6
+      //- h2.text-primary Heading4
+      //- p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- p
+      //-   a.btn.btn-raised(href='#', role='button') View details................ »

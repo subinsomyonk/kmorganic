@@ -1,0 +1,48 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Add )
+  p.lead.text-success #{caption} : ( เพิ่ม )
+  hr
+  //- if(findText)
+  //-   a(href="/plant/findText?findText="+findText) << BACK
+  //- else
+  //-   a(href="/plant") << BACK
+
+
+  if(findText)
+    a.btn.btn-outline-dark(href="/plant/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    a.btn.btn-outline-dark(href="/plant/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  
+  if findText == 'undefined'
+    - let findTextRev = 'XXXXX'
+  else
+    - let findTextRev = findText
+
+  form(method='POST' action='/plant/add/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='plantNameTh') PLANT NAME TH :
+          if(payload)
+            input#plantNameTh.form-control.text-success(value=payload.plantNameTh name="plantNameTh" type='text' placeholder="ชื่อไทยพันธุ์พืช") 
+          else
+            input#plantNameTh.form-control.text-success(name="plantNameTh" type='text' placeholder="ชื่อไทยพันธุ์พืช") 
+        .form-group
+          label.col-form-label.text-primary(for='plantNameEn') PLANT NAME EN :
+          if(payload)
+            input#plantNameEn.form-control.text-success(value=payload.plantNameEn type='text' name ="plantNameEn" placeholder="ชื่ออังกฤษพันธุ์พืช")
+          else
+            input#plantNameEn.form-control.text-success(name="plantNameEn" type='text' placeholder="ชื่ออังกฤษพันธุ์พืช")
+        .form-group
+          label.col-form-label.text-primary(for='notes') NOTES:
+          if(payload)
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") #{payload.notes}
+          else
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ")
+
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกเพิ่มพันธุ์พืช

@@ -1,0 +1,79 @@
+extends ../layout
+
+block content
+  script.
+    //for change Eng YYYY-mm-dd to dd/mm/yyyy of Thai
+    function EngThaiDate(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      return ddmmyyyy;
+    }
+    function calculateAge(birthday) { // birthday is a date
+      var ageDifMs = Date.now() - birthday;
+      var ageDate = new Date(ageDifMs); // miliseconds from epoch
+      return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+  h1.text-primary #{title}
+    i.fas.fa-file
+  p.lead.text-success #{caption}
+  hr
+  //- p copyright &copy; 1991 &mdash;
+  .row
+    .col-md-12
+      if resultMemberFamily
+        <div class="table-responsive">
+
+          <table id="dataTable" class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+
+                  <th>NO.</th> 
+                  <th>MEMBER ID</th>
+                  <th>ADDRESS</th>
+                  <th>TYPE</th>
+                  <th>BONE</th>
+                  <th>REGISTER</th> 
+                  <th>AGE (YEARS)</th>              
+                  <th>COUNT FAMILY</th>
+                  <th>LIST FAMILY</th>
+                  <th>PHONE</th>
+                  <th>NOTES</th>
+
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              - var len = 0;
+              each i in resultMemberFamily
+
+                tr.text-success
+                  td= ii++
+                  td= i.memberId
+                  td= 'เลขที่ '+i.homeNo +' หมู่ '+   i.groupNo +' บ้าน '+  i.village +' '+ i.subDistrict+' '+i.district+' '+i.province +' '+ i.postCode
+                  td.text-center= i.memberType
+                  td.text-center= i.shareHolder                  
+                  td=(i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)  
+                  td.text-center= (currentYear - i.register.getFullYear())
+
+
+                  td.text-center= i.member_families.length
+                  td
+                    - let noo = 0;
+                    each  ii in i.member_families
+                      p= (++noo) +'.'+ii.firstName +' '+ ii.lastName +' อายุ '+ (currentYear - ii.birthDate.getFullYear())+' ปี เพศ '+ii.gender
+                  td= i.phone
+                  td= i.notes
+
+            </tbody>
+            <caption>
+              p= 'Now (mm-YYYY) : '+currentMonth +'-'+currentYear
+            </caption>
+          </table>
+        </div>
+

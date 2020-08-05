@@ -1,0 +1,93 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Add )
+  p.lead.text-success #{caption} : ( เพิ่ม )
+  hr
+  if(findText)
+    a.btn.btn-outline-dark(href="/family/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    a.btn.btn-outline-dark(href="/family/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+
+  if(payload)
+    - let birthDate = new Date(payload.birthDate);
+    - let dd = birthDate.getDate();
+    - let mm = birthDate.getMonth()+1;
+    - let yyyy = birthDate.getFullYear();
+    - dd = (dd < 10 ? '0' : '') + dd;
+    - mm = (mm < 10 ? '0' : '') + mm;
+    - let yyyymmdd = yyyy+'-'+mm+'-'+dd;
+
+  form(method='POST' action='/family/add')
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          input(name='findText_', type='hidden', value= findText)
+
+          label.col-form-label.text-primary(for='IDCARD') ID CARD:
+          if(payload)
+            input#IDCARD.form-control.text-success( minlength=13 maxlength=13 value=payload.IDCARD name="IDCARD" type='text' placeholder="เลขที่บัตรประชาชน") 
+          else
+            input#IDCARD.form-control.text-success(name="IDCARD" type='text' placeholder="เลขที่บัตรประชาชน") 
+        .form-group
+          label.col-form-label.text-primary(for='firstName') First Name:
+          if(payload)
+            input#firstName.form-control.text-success(value=payload.firstName type='text' name ="firstName" placeholder="ชื่อ")
+          else
+            input#firstName.form-control.text-success(name="firstName" type='text' placeholder="ชื่อ")
+        .form-group
+          label.col-form-label.text-primary(for='firstName') Last Name:
+          if(payload)
+            input#lastName.form-control.text-success(value=payload.lastName type='text' name ="lastName" placeholder="สกุล")
+          else
+            input#lastName.form-control.text-success(type='text' name ="lastName" placeholder="สกุล")
+            
+        label.col-form-label.text-primary(for='gender') GENDER : 
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(checked type="radio" name="gender" value="MALE")
+          label.col-form-label.text-primary(for='gender') MALE:
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(type="radio" name="gender" value="FEMALE")
+          label.col-form-label.text-primary(for='gender') FMALE:
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(name="gender" type="radio" value="OTHER")
+          label.col-form-label.text-primary(for='gender') OTHERS:
+
+
+        .form-group
+          label.col-form-label.text-primary(for='phone') Phone:
+          if(payload)
+            input#phone.form-control.text-success(name="phone" type='text' value=payload.phone placeholder="โทรศัพท์")
+          else
+            input#phone.form-control.text-success(name="phone" type='text' placeholder="โทรศัพท์")
+      .col-md-6
+        .form-group
+          label.col-form-label.text-primary(for='birthDate') Birth Date:
+          if(payload)
+            input#birthDate.form-control.text-success(value=yyyymmdd type='date' name ="birthDate" placeholder="วันเกิด")
+          else
+            input#birthDate.form-control.text-success(type='date' name ="birthDate" placeholder="วันเกิด")
+        .form-group
+          label.col-form-label.text-primary(for='memberId') Member ID:
+          if(payload)
+            input#memberId.form-control.text-success(value=payload.memberId type='text' name ="memberId" placeholder="รหัสสมาชิก")
+          else
+            input#memberId.form-control.text-success(type='text' name ="memberId" placeholder="รหัสสมาชิก")
+        .form-group
+          label.col-form-label.text-primary(for='notes') หมายเหตุ:
+          if(payload)
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") #{payload.notes}
+          else
+            textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ")
+        
+        //- .form-group.custom-control.custom-checkbox
+        //-   if(result.statusId)
+        //-     input#statusId.custom-control-input(type="checkbox" name="statusId" checked)
+        //-   else
+        //-     input#statusId.custom-control-input(type="checkbox" name="statusId" )
+        //-   label.custom-control-label.text-primary(for='statusId') สถานะ ปกติ
+
+        button.col-md-6.btn.btn-primary(type='submit') บันทึกเพิ่มคนในครอบครัว

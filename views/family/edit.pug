@@ -1,0 +1,70 @@
+extends ../layout
+
+block content
+  h1.text-primary #{title} : ( Edit )
+  p.lead.text-success #{caption} : ( แก้ไข )
+  hr
+  if(findText)
+    a.btn.btn-outline-dark(href="/family/findText?findText="+findText) 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  else
+    a.btn.btn-outline-dark(href="/family/findText?findText=") 
+      i.fas.fa-angle-double-left(style='font-size:24px;color:red') ย้อนกลับ
+  
+  -  let birthDate = new Date(result.birthDate);
+  -  let dd = birthDate.getDate();
+  -  let mm = birthDate.getMonth()+1;
+  -  let yyyy = birthDate.getFullYear();
+  -  dd = (dd < 10 ? '0' : '') + dd;
+  -  mm = (mm < 10 ? '0' : '') + mm;
+  -  let yyyymmdd = yyyy+'-'+mm+'-'+dd;
+
+  form(method='POST' action='/family/edit/update/'+ _id +'/'+findText)
+    .row
+      .col-md-6
+        .form-group
+          input(name='_csrf', type='hidden', value=_csrf)
+          label.col-form-label.text-primary(for='IDCARD') Area ID:
+          input#IDCARD.form-control.text-success(name="IDCARD" value=result.IDCARD type='text' readOnly placeholder="บัตรประชาชน") 
+        .form-group
+          label.col-form-label.text-primary(for='firstName') First Name:
+          input#firstName.form-control.text-success(name="firstName" value=result.firstName type='text' placeholder="ชื่อ")
+        .form-group
+          label.col-form-label.text-primary(for='lastName') Last Name:
+          input#lastName.form-control.text-success(name="lastName" value=result.lastName type='text' placeholder="สกุล")
+        .form-group
+          label.col-form-label.text-primary(for='birthDate') Birth Date:
+          input#birthDate.form-control.text-success(value=yyyymmdd name="birthDate" type='date' placeholder="วันเกิด")
+
+        label.col-form-label.text-primary(for='gender') Gender : 
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(type="radio" name="gender" value="MALE"  checked=(result.gender=="MALE"))
+          label.col-form-label.text-primary(for='gender') MALE
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(type="radio" name="gender" value="FEMALE" checked=(result.gender=="FEMALE"))
+          label.col-form-label.text-primary(for='gender') FMALE
+        .form-group.form-check.form-check-inline
+          input#gender.form-check-input(name="gender" type="radio" value="OTHER" checked=(result.gender=="OTHER")) 
+          label.col-form-label.text-primary(for='gender') OTHERS
+
+      .col-md-6
+        .form-group
+          label.col-form-label.text-primary(for='phone') Phone:
+          input#phone.form-control.text-success(name="phone" value=result.phone type='text' placeholder="โทรศัพท์")
+        
+        .form-group.custom-control.custom-checkbox
+          if(result.statusId=='1')
+            input#statusId.custom-control-input(type="checkbox" name="statusId" checked)   
+          else
+            input#statusId.custom-control-input(type="checkbox" name="statusId")  
+          label.custom-control-label.text-primary(for='statusId') สถานะ ปกติ
+        .form-group
+          label.col-form-label.text-primary(for='notes') Notes:
+          textarea#notes.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") #{result.notes}
+        .form-group
+          label.col-form-label.text-primary(for='memberId') Member ID:
+          input#register.form-control.text-success(name="memberId" value=result.memberId type='text' placeholder="รหัสสมาชิก")
+        .form-group
+          label#createdAt.custom-control-label.text-primary() วันสร้าง #{result.createdAt}
+          label#updatedAt.custom-control-label.text-primary() ปรับปรุงล่าสุด #{result.updatedAt}
+        button.col-md-4.btn.btn-primary(type='submit') บันทึกแก้ไข

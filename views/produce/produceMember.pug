@@ -1,0 +1,84 @@
+extends ../layout
+
+block content
+  script.
+    function onClickSelectYear___(){
+      //- alert('onClickSelectYear'+$('#yearName').val());
+
+      let _yearName = $('#yearName').html();
+      let _idYear = $('#yearName').val();
+      $.ajax('/produce/produceMember__',{
+        data:{idYear: _idYear,yearName:_yearName},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          alert(_yearName+'=='+_idYear);
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          if(okk=='success'){
+            location.href = "https://www.w3schools.com";
+          }
+        }
+      });
+    }
+
+
+
+  h1.text-primary #{title}
+    i.far.fa-registered
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-6
+      h2.text-warning 1#. เลือกเลขที่สมาชิก  #{_idYear}
+      if yearResult
+        p= yearResult.yearName +' ' + yearResult.yearCaption
+      
+        form(method='POST' action='/produce/selectMemberSearch')  
+          input(name='_csrf', type='hidden', value=_csrf)
+          input(name='_idYear', type='hidden', value=yearResult._id)
+          label.col-md-2.col-form-label.font-weight-bold.text-left.text-primary(for='findTextMemberId') ค้นหา MEMBER Id :
+          if findTextMemberId
+            input(type="text" name="findTextMemberId" id="findTextMemberId" value=findTextMemberId)
+          else
+            input(type="text" name="findTextMemberId" id="findTextMemberId")
+          button.col-md-2.btn.btn-primary(type='submit') ค้นหา
+
+
+    .col-md-6
+      h2.text-primary รายการสมาชิก
+      if memberResult
+        - let ii =0
+        .table-responsive
+          table#dataTable.table.table-hover.bg-gray-800
+            thead
+              tr
+                th NO.
+                th MEMBER ID
+                th LOCATION
+            tbody
+              each i in memberResult
+                tr
+                  td= (++ii)
+                  td
+                    a(href="../produce/keyProduceAreaToMember/"+yearResult._id+"/"+i._id+"/"+findTextMemberId)  #{i.memberId}
+                  td= 'เลขที่ '+i.homeNo +' หมู่'+ i.groupNo +' '+ i.village+ ' '+i.subDistrict+' '+ i.district+' '+i.province
+            caption ค้นหาด้วย #{findTextMemberId} จำนวนที่พบ  #{memberResult.length} รายการ
+
+        //- a.btn.btn-primary(href='#', role='button') View details »
+    .col-md-6
+      //- h2.text-primary Heading#3
+      //- p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- p
+      //-   a.btn.btn-danger(href='#', role='button') View details »
+    .col-md-6
+      //- h2.text-primary Heading#4
+      //- p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- p
+      //-   a.btn.btn-raised(href='#', role='button') View details................ »

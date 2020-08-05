@@ -1,0 +1,146 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+
+  .row
+    .col-md-6
+      if resultMemberTypeNormal
+        .table-responsive
+          table.table.table-hover.bg-gray-800
+            thead
+              tr.bg-primary
+                th 
+                th 
+                  h4 ข้อมูลสมาชิกสามัญ 
+            tbody
+
+              //-   resultMemberTypeNormal : resultMemberTypeNormal, 
+              //-   numberRecordNormal : numberRecordNormal,
+              //-   minShareHolderNormal : minShareHolderNormal,
+              //-   maxShareHolderNormal : maxShareHolderNormal,
+              //-   totalShareHolderNormal : totalShareHolderNormal,
+              //-   avgShareHolderNormal : avgShareHolderNormal,
+              //-   avgRegisterNormal : avgRegisterNormal,
+              //-   shareHolderMoneyNormal : ( totalShareHolderNormal*100.00),
+              tr
+                th.text-right.text-primary จำนวนเลขที่สมาชิกทั้งหมด :
+                td.text-success #{numberRecordNormal} หมายเลข
+              tr
+                th.text-right.text-primary อายุสมาชิกเฉลี่ย :
+                td.text-success #{avgRegisterNormal}  ปี
+              tr
+                th.text-right.text-primary จำนวนหุ้นสามัญรวม :
+                td.text-success #{totalShareHolderNormal} หุ้น
+              tr
+                th.text-right.text-primary จำนวนหุ้นสามัญน้อยสุด :
+                td.text-success #{minShareHolderNormal} หุ้น
+              tr
+              tr
+                th.text-right.text-primary จำนวนหุ้นสามัญมากสุด :
+                td.text-success #{maxShareHolderNormal} หุ้น 
+              tr
+                th.text-right.text-primary เฉลี่ยหุ้นสามัญต่อสมาชิกสามัญ :
+                td.text-success #{avgShareHolderNormal} หุ้น ต่อ สมาชิกสามัญ
+              tr
+                th.text-right.text-primary รวมจำนวนเงินหุ้นสามัญ :
+                td.text-success  #{shareHolderMoneyNormal} บาท
+
+
+              //- -----------------------
+
+              tr
+                th.text-warning.text-center  
+                  h5 ครอบครัวของสมาชิก ---------------------
+                td 
+                  hr
+
+
+
+
+              tr
+                th.text-right.text-primary จำนวนคนในครอบครัวของสมาชิกทั้งหมด :
+                td.text-success 12 หมายเลข
+              tr
+                th.text-right.text-primary อายุสมาชิกเฉลี่ย :
+                td.text-success 3  ปี
+              tr
+                th.text-right.text-primary จำนวนคนในครอบครัวของสมาชิกทั้งหมด :
+                td.text-success 123 คน
+
+
+
+              tr
+                th.text-warning.text-center  
+                  h5 แปลงเพาะปลูกของสมาชิก
+                td 
+                  hr
+              tr
+                th.text-right.text-primary จำนวนคนในครอบครัวเฉลี่ยต่อสมาชิก :
+                td.text-success 4 คน ต่อ สมาชิก
+              tr
+                th.text-right.text-primary อายุน้อยสุดคนในครอบครัวสมาชิก :
+                td.text-success 10 ปี
+              //- tr
+              //-   th.text-right.text-primary อายุมากสุดคนในครอบครัวสมาชิก :
+              //-   td.text-success 55 ปี
+              //- tr
+              //-   th.text-right.text-primary อายุเฉลี่ยคนในครอบครัวสมาชิก :
+              //-   td.text-success 30 ปี
+              //- tr
+              //-   th.text-right.text-primary จำนวนสามัญหุ้นรวม :
+              //-   td.text-success 1000 หุ้น
+              //- tr
+              //-   th.text-right.text-primary เฉลี่ยต่อสมาชิก :
+              //-   td.text-success 20 หุ้น ต่อสมาชิก
+              //- tr
+              //-   th.text-right.text-primary จำนวนแปลง :
+              //-   td.text-success 100 แปลง
+              //- tr
+              //-   th.text-right.text-primary รวมพื้นที่แปลง :
+              //-   td.text-success 200 ไร่
+              //- tr
+              //-   th.text-right.text-primary ค่าเฉลี่ยจำนวนแปลงต่อสมาชิก :
+              //-   td.text-success 4 แปลง ต่อ สมาชิก
+              //- tr
+              //-   th.text-right.text-primary ค่าเฉลี่ยพื้นที่แปลงต่อสมาชิก :
+              //-   td.text-success 15 ไร่ ต่อ สมาชิก
+            caption *** สมาชิก สามัญ 
+
+    .col-md-6
+      if resultMemberTypeInNormal
+        .table-responsive
+          table.table.table-hover.bg-gray-800
+            thead
+                tr.bg-warning
+                  th 
+                  th 
+                    h4 ข้อมูลสมาชิกวิสามัญ 
+            tbody
+              tr
+                th.text-right.text-primary จำนวนเลขที่สมาชิกทั้งหมด :
+                td.text-success #{numberRecord} หมายเลข
+              tr
+                th.text-right.text-primary อายุสมาชิกเฉลี่ย :
+                td.text-success #{avgRegister}  ปี
+              tr
+                th.text-right.text-primary จำนวนหุ้นวิสามัญรวม :
+                td.text-success #{totalShareHolder} หุ้น
+              tr
+                th.text-right.text-primary จำนวนหุ้นวิสามัญน้อยสุด :
+                td.text-success #{minShareHolder} หุ้น
+              tr
+              tr
+                th.text-right.text-primary จำนวนหุ้นวิสามัญมากสุด :
+                td.text-success #{maxShareHolder} หุ้น 
+              tr
+                th.text-right.text-primary เฉลี่ยหุ้นวิสามัญต่อสมาชิกวิสามัญ :
+                td.text-success #{avgShareHolder} หุ้น ต่อ สมาชิกวิสามัญ
+              tr
+                th.text-right.text-primary รวมจำนวนเงินหุ้นวิสามัญ :
+                td.text-success  #{shareHolderMoney} บาท
+            caption *** สมาชิก วิสามัญ 

@@ -1,0 +1,185 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+
+  
+  - let noo = 0
+  
+  .row
+    .col-md-12
+
+      table#dataTable.table.table-hover
+        caption='ข้อมูลพื้นฐานของสมาชิกทั้งหมด ตามพื้นที่ ปรับปรุงล่าสุด ' +currentDateTime
+          
+        thead
+          tr.bg-success
+            th ลำดับ.
+            th หมู่
+            th บ้าน
+            th ตำบล
+            th อำเภอ
+            th จังหวัด
+            th จำนวนสมาชิก
+            th จำนวนหุ้น
+            th เฉลี่ยหุ้น
+            th ลงทะเบียนล่าสุด
+            th ลงทะเบียนเก่าสุด 
+            th อายุเฉลี่ยสมาชิก(ปี)   
+            th.text-danger จำนวนคนในครอบครัว
+            th.text-danger ชาย
+            th.text-danger หญิง
+            th.text-danger อายุมากสุด(เกิด)
+            th.text-danger อายุน้อยสุด(เกิด)
+            th.text-danger อายุเฉลี่ยคนในครอบครัว(ปี)
+            
+
+            th.text-warning จำนวนแปลง
+            th.text-warning รวมจำนวนไร่ 
+            th.text-warning แปลงเล็กสุด(ไร่)
+            th.text-warning แปลงใหญ่สุด(ไร่)
+            th.text-warning เฉลี่ยไร่/แปลง
+            th.text-warning ลงทะเบียนแปลงล่าสุด
+            th.text-warning ลงทะเบียนแปลงเก่าสุด
+            th.text-warning อายุเฉลี่ยแปลง(ปี)
+            
+        tbody
+          each i, noo in allGroup
+            tr
+              td= (noo+1)
+              td= i._id.groupNo
+              td= i._id.village
+              td= i._id.subDistrict
+              td= i._id.district
+              td= i._id.province             
+              td= i.countRecord 
+              td= i.totalShareHolder 
+              td= (i.totalShareHolder/i.countRecord ).toFixed(2) 
+              td= i.maxRegister.getDate()+'/'+(i.maxRegister.getMonth()+1)+'/'+(i.maxRegister.getFullYear()+543)
+              td= i.minRegister.getDate()+'/'+(i.minRegister.getMonth()+1)+'/'+(i.minRegister.getFullYear()+543)             
+              - let yearDiff = 0
+              - let totalMemberRegisterAgeNormal = 0
+              each val in allNormalMember
+                if i._id.groupNo == val.groupNo && i._id.village == val.village && i._id.subDistrict == val.subDistrict && i._id.district == val.district && i._id.province == val.province
+                  - yearDiff = (currentYear - val.register.getFullYear())
+                  - totalMemberRegisterAgeNormal += yearDiff
+              td= (totalMemberRegisterAgeNormal/i.countRecord).toFixed(2)
+
+
+              - let numFamily = 0
+              - let youngFamily = null
+              - let oldFamily = null
+              - let sumFamilyAge = 0
+              - let avgFamily = 1
+              - let totMale = 0
+              - let totFemale = 0              
+              each val in familyMemberArr
+                if i._id.groupNo == val[0].groupNo && i._id.village == val[0].village && i._id.subDistrict == val[0].subDistrict && i._id.district == val[0].district && i._id.province == val[0].province                 
+                  if val[0].member_family
+                    - numFamily = val[0].member_family.length
+                    each v , ii in val[0].member_family
+                      - yearDiff = (currentYear - v.birthDate.getFullYear())
+                      - sumFamilyAge +=yearDiff
+                      if ii == 0
+                        - youngFamily = v.birthDate
+                        - oldFamily = v.birthDate
+                      if v.birthDate <= youngFamily 
+                        - youngFamily = v.birthDate
+                      if v.birthDate >= oldFamily 
+                        - oldFamily = v.birthDate
+                      if v.gender == 'MALE'
+                        - totMale++
+                      if v.gender == 'FEMALE'
+                        - totFemale++
+                  - exit
+
+              td.text-danger= numFamily
+              td.text-danger= totMale
+              td.text-danger= totFemale
+              if youngFamily
+                td.text-danger= youngFamily.getDate()+'/'+(youngFamily.getMonth()+1)+'/'+(youngFamily.getFullYear()+543)
+              else
+                td.text-danger= NULL
+              if oldFamily
+                td.text-danger= oldFamily.getDate()+'/'+(oldFamily.getMonth()+1)+'/'+(oldFamily.getFullYear()+543)
+              else
+                td.text-danger= NULL
+              if sumFamilyAge == 0
+                td.text-danger= 0
+              else
+                td.text-danger= parseFloat(sumFamilyAge/numFamily).toFixed(2)
+
+              - let numRecord = 0
+              - let sumSize = 0.00
+              - let minSize = 0.00
+              - let maxSize = 0.00
+              - let lastRegister = null
+              - let longRegister = null
+              - let sumAreaAge = 0
+              each val in areaMemberArr
+                if i._id.groupNo == val[0].groupNo && i._id.village == val[0].village && i._id.subDistrict == val[0].subDistrict && i._id.district == val[0].district && i._id.province == val[0].province                 
+                  if val[0].member_areas
+                    - numRecord = val[0].member_areas.length
+                    
+                    each v , ii in val[0].member_areas
+                      - yearDiff = (currentYear - v.register.getFullYear())
+                      - sumAreaAge +=yearDiff
+                      - sumSize +=v.size
+                      if ii == 0
+                        - minSize = v.size
+                        - maxSize = v.size
+                        - lastRegister = v.register
+                        - longRegister = v.register
+                      if v.size <= minSize
+                        - minSize = v.size
+                      if v.size >= maxSize
+                        - maxSize = v.size
+                      
+                      if v.register <= longRegister
+                        - longRegister = v.register
+                      if v.register >= lastRegister
+                        - lastRegister = v.register
+
+                  exit
+
+
+
+              td.text-warning= numRecord
+
+              if sumSize
+                td.text-warning= sumSize
+              else
+                td.text-warning= '0'
+              td.text-warning= minSize
+              td.text-warning= maxSize
+
+              if sumSize
+                td.text-warning= parseFloat(sumSize/numRecord).toFixed(2)
+              else
+                td= null
+
+              if lastRegister
+                td.text-warning= lastRegister.getDate()+'/'+(lastRegister.getMonth()+1)+'/'+(lastRegister.getFullYear()+543)
+              else
+                td.text-warning=null
+              if longRegister
+                td.text-warning= longRegister.getDate()+'/'+(longRegister.getMonth()+1)+'/'+(longRegister.getFullYear()+543)
+              else
+                td.text-warning=null
+              
+              if sumAreaAge == 0
+                td.text-warning= null
+              else
+                td.text-warning= parseFloat(sumAreaAge/numRecord).toFixed(2)
+              
+
+      
+              
+
+
+
+

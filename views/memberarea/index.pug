@@ -1,0 +1,163 @@
+extends ../layout
+
+block content
+  script.
+    //confirm to delete record
+    function btnDel(){
+      let memberId = $('#memberId').html().trim();
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      let okDel = confirm('ต้องการลบสมาชิก '+ memberId +' ออกจากระบบ')
+      if(okDel){
+        location.href = "/member/delete?_id="+_id+"&findText="+findText;
+      }
+    }
+    //member Edit page
+    function clickEdit(memberId,findText){
+      location.href = "/memberarea/edit/"+memberId+"/"+findText;
+
+    }
+    //for change Eng YYYY-mm-dd to dd/mm/yyyy of Thai
+    function EngThaiDate(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      return ddmmyyyy;
+    }
+    //View the record of member
+    function testt(_id){
+      $('#_id').html('');
+      $('#_id').html(_id);
+      $.ajax('/member/findByIdInfo',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> HOME NO : </th>';
+                txtTable +='<th class="text-success">'+val.homeNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> GROUP NO : </th>';
+                txtTable +='<th class="text-success">'+val.groupNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> VILLAGE : </th>';
+                txtTable +='<th class="text-success">'+val.village+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SUB DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.subDistrict+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.district+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PROVINCE : </th>';
+                txtTable +='<th class="text-success">'+val.province+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> POSTCODE : </th>';
+                txtTable +='<th class="text-success">'+val.postCode+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PHONE : </th>';
+                txtTable +='<th class="text-success">'+val.phone+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> REGISTER : </th>';
+                txtTable +='<th class="text-success">'+EngThaiDate(val.register)+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> TPYE MEMBER : </th>';
+                txtTable +='<th class="text-success">'+val.memberType+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> BOND : </th>';
+                txtTable +='<th class="text-success">'+val.shareHolder+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> IDCARD : </th>';
+                txtTable +='<th class="text-success">'+val.IDCARD+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> STATUS : </th>';
+                if(val.statusId == 1)
+                  txtTable +='<th class="text-success">ปกติ</th></tr>';
+                else
+                  txtTable +='<th class="text-success">ออก</th></tr>';
+                txtTable +='<caption>รายละเอียดสมาชิก เลขที่ '+ val.memberId+'</caption>';
+                txtTable +='</table>';
+                $('#modalbody').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody').html('Not Found Data ');
+          }
+        }
+      });
+    }
+  h1.text-primary #{title}
+    i.fas.fa-object-group
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      form(method='POST' action='/memberArea')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-3.col-form-label.font-weight-bold.text-left.text-primary(for='findText') เลขที่สมาชิก :
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText" placeholder="Find With Member Id")
+        else
+          input(type="text" name="findText" id="findText" placeholder="Find With Member Id")
+        button.col-md-3.btn.btn-primary(type='submit') ค้นหา
+    .dol-md-6
+  hr
+  .row
+    .col-md-12
+      if result
+        <div class="table-responsive">
+          <table id="dataTable" class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>NO.</th> 
+                  <th>MEMBER ID</th>
+                  <th>LOCATION</th>
+                  <th>REGISTER</th>
+                  <th>IDCARD</th>
+                  //- <th>VIEW</th>
+                  <th>HANDLE</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              each i in result
+                tr.text-success
+                  td=ii++
+                  td
+                    a(data-target='.bd-example-modal-lg', data-toggle='modal', href="", onClick="testt(\'"+i._id+"\')")  #{i.memberId}
+                  td=i.homeNo +' '+ i.groupNo+' '+i.village+' '+i.subDistrict+' '+i.district+' '+ i.province+ ' '+i.postCode
+                  td=(i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)
+                  td=i.IDCARD
+                  //- td
+                  //-   a(data-target='.bd-example-modal-lg', data-toggle='modal', href="", onClick="testt(\'"+i._id+"\')") ดูรายละเอียด
+                  td
+                    if(i.memberType=='สามัญ')
+                      a(data-target='.bd-example-modal-lg', href="/memberarea/edit/"+i.memberId+"/"+findText ) จัดการแปลงเพาะปลูก
+                    else
+                      p= i.memberType
+                    //- a(data-target='.bd-example-modal-lg', href="/memberarea/edit/"+i.memberId+"/") จัดการแปลงเพาะปลูก
+            </tbody>
+          </table>
+        </div>
+
+    .modal.fade.bd-example-modal-lg(role='dialog', aria-hidden='true', aria-labelledby='myLargeModalLabel', tabindex='-1')
+      .modal-dialog.modal-lg
+        .modal-content
+          .modal-header.bg-dark
+            h3.text-success รายละเอียด สมาชิก
+            span#_id(style="display:none")
+          .modal-body#modalbody
+            p modal body show
+
+          .modal-footer
+            //- button.btn.btn-primary(type='button' onclick="btnEdit();") Edit : แก้ไข
+            //- button.btn.btn-danger(type='button' onclick="btnDel();") Delete :ลบ
+            button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด

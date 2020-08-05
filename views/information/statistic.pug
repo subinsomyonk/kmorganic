@@ -1,0 +1,206 @@
+extends ../layout
+
+block content
+  
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+
+  
+  - let noo = 0
+  
+  .row
+    .col-md-12
+      table#dataTable.table.table-hover
+        caption='ข้อมูลพื้นฐานของสมาชิกทั้งหมด ปรับปรุงล่าสุด ' +currentDateTime
+          
+        thead
+          tr.bg-success
+            th ลำดับ.
+            th เลขที่สมาชิก
+            th เจ้าบ้าน
+            th เลขที่
+            th หมู่
+            th บ้าน
+            th ตำบล
+            th อำเภอ
+            th จังหวัด
+            th ไปรษณีย์    
+            th จำนวนหุ้น
+            
+            th โทร
+            th ลงทะเบียน
+            
+            th.text-danger จำนวนคนในครอบครัว
+            th.text-danger เพศชาย
+            th.text-danger เพศหญิง
+            th.text-danger อายุน้อยสุด เกิด
+            th.text-danger อายุมากสุด เกิด
+            th.text-danger อายุเฉลี่ย
+            
+
+            th.text-warning จำนวนแปลง
+            th.text-warning รวมจำนวนไร่
+            th.text-warning แปลงเล็กสุด
+            th.text-warning แปลงใหญ่สุด
+            th.text-warning เฉลี่ยไร่/แปลง
+            th.text-warning ลงทะเบียนแปลงล่าสุด
+            th.text-warning ลงทะเบียนแปลงเก่าสุด
+            th.text-warning อายุเฉลี่ยแปลง
+
+
+            
+        tbody
+
+
+          each i in allNormalMemberFamily
+            tr
+              
+              - let countMale = 0
+              - let countFemale = 0
+              - let minBirthDate = 0
+              - let maxBirthDate = 0
+              - let avgAgeFamily = 0
+              - let oldMan = null
+              - let youngMan = null
+              - let totalAllFamilyAgeNormal = 0
+              - let avgTotalAllFamilyAgeNormal = 0.00
+              - let yearDiff = 0
+              - let owner = null
+              each j, index in i.member_family
+                if j.gender == 'FEMALE'
+                  - countFemale++
+                else
+                  - countMale++
+                
+                - yearDiff = (currentYear - j.birthDate.getFullYear())
+                - totalAllFamilyAgeNormal +=yearDiff
+                
+
+                if index==0
+                  - minBirthDate = yearDiff;
+                  - maxBirthDate = yearDiff;
+            
+                if minBirthDate >= yearDiff
+                  - minBirthDate = yearDiff;
+                  - youngMan = j.birthDate
+                if maxBirthDate <= yearDiff
+                  - maxBirthDate = yearDiff
+                  - oldMan = j.birthDate
+                if j.IDCARD == i.IDCARD
+                  - owner = j.firstName +' '+ j.lastName
+
+              td= (++noo)
+              td= i.memberId
+              td= owner
+              td= i.homeNo
+              td= i.groupNo
+              td= i.village
+              td= i.subDistrict
+              td= i.district
+              td= i.province
+              td= i.postCode
+              td= i.shareHolder
+
+              td= i.phone
+              td= (i.register.getDate() < 10 ? '0'+i.register.getDate(): i.register.getDate())+'/'+(i.register.getMonth() < 10 ? '0'+(i.register.getMonth()+1): (i.register.getMonth()+1))+'/'+(i.register.getFullYear()+543)
+              td.text-danger= i.member_family.length
+              td.text-danger= countMale
+              td.text-danger= countFemale
+              if youngMan
+                td.text-danger= youngMan.getDate()+'/'+(youngMan.getMonth()+1)+'/'+(youngMan.getFullYear()+543)
+              else
+                td.text-danger= 0
+              if oldMan
+                td.text-danger= oldMan.getDate()+'/'+(oldMan.getMonth()+1)+'/'+(oldMan.getFullYear()+543)
+              else
+                td.text-danger= 0
+              if totalAllFamilyAgeNormal
+                td.text-danger= parseFloat(totalAllFamilyAgeNormal/i.member_family.length).toFixed(0)
+              else
+                td.text-danger= 0
+              
+              //- จำนวน แปลง  allNormalMemberArea
+              //- - let result = allNormalMemberArea.filter((area) => {
+              //-     - return area.memberId = i.memberId })
+              
+              - let areaArr = []
+              if allNormalMemberArea && allNormalMemberArea.length > 0
+                each m, mm in allNormalMemberArea
+                  if i.memberId == m.memberId
+                    - areaArr = m.member_areas
+                    - exit
+              if areaArr && areaArr.length > 0
+                td.text-warning= areaArr.length
+              else
+                td.text-warning=0
+
+
+              if areaArr && areaArr.length > 0
+                - let totalSizeArea = 0.00
+                - let minSize = 0.00
+                - let maxSize = 0.00
+                - let totalAgeAreaRegister = 0
+                - let oldRegister = null
+                - let youngRegister = null
+                - let oldRegisterDate = null
+                - let youngRegisterDate = null
+                each v, vv in areaArr
+                  - totalSizeArea += v.size
+                  if vv == 0
+                    - minSize = v.size
+                    - maxSize = v.size
+
+                  if v.size <= minSize
+                    - minSize = v.size
+                  if v.size >= maxSize
+                    - maxSize = v.size
+
+
+                  - yearDiff = (currentYear - v.register.getFullYear())
+                  - totalAgeAreaRegister +=yearDiff
+                  
+
+                  if vv==0
+                    - oldRegister = yearDiff
+                    - youngRegister = yearDiff
+                    - oldRegisterDate = v.register
+                    - youngRegisterDate = v.register
+
+              
+                  if yearDiff >= oldRegister
+                    - oldRegisterDate = v.register
+                    - oldRegister = yearDiff;
+
+                  if yearDiff <=  youngRegister
+                    - youngRegister = yearDiff
+                    - youngRegisterDate = v.register
+                  
+
+                  //- if 
+
+
+                td.text-warning= totalSizeArea
+                td.text-warning= minSize
+                td.text-warning= maxSize
+                td.text-warning= parseFloat(totalSizeArea/areaArr.length).toFixed(2)
+                  
+                td.text-warning= youngRegisterDate.getDate()+'/'+(youngRegisterDate.getMonth()+1)+'/'+(youngRegisterDate.getFullYear()+543)
+                td.text-warning= oldRegisterDate.getDate()+'/'+(oldRegisterDate.getMonth()+1)+'/'+(oldRegisterDate.getFullYear()+543)
+                td.text-warning= parseFloat(totalAgeAreaRegister/areaArr.length).toFixed(0)
+              else
+                td.text-warning=0
+                td.text-warning=0
+                td.text-warning=0
+                td.text-warning=0
+                td.text-warning=0
+                td.text-warning=0
+                td.text-warning=0
+              
+
+              
+
+
+
+

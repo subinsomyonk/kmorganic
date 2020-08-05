@@ -1,0 +1,121 @@
+.navbar.navbar-light.fixed-top.navbar-expand-lg.bg-secondary
+  .container
+    a.navbar-brand(href='/')
+      i.fas.fa-cube.text-success
+      | KM organic
+    button.navbar-toggler(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+      span.sr-only Toggle navigation
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse
+        if user
+          ul.nav.navbar-nav
+            li.dropdown(class=(title === 'Member Management') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span MEMBER
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/member') MEMBER: สมาชิก
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/family') FAMILY: คนในครอบครัวสมาชิก
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/area') AREA: แปลงเพาะปลูก
+                  div.dropdown-divider
+                  a.dropdown-item(href='/memberFamily') MEMBER-FAMILY: จัดการคนในครอบครัว
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/memberArea') MEMBER-AREA: จัดการแปลงเพาะปลูก
+            li.dropdown(class=(title === 'Plant-Product Management') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span PLANT PRODUCT
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/plant') PLANT : พันธุ์พืช
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/product') PRODUCT : ผลผลิต
+                  //- div.dropdown-divider
+                  //- a.dropdown-item(href='/reportplant') REPORT : รายงาน พันธุ์พืชและผลผลิต
+            li.dropdown(class=(title === 'Year Management') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span YEAR PRODUCE
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/year') YEAR : สร้างเลขที่การเพาะปลูก
+                  div.dropdown-divider
+                  a.dropdown-item(href='/produce') PRODUCE : ลงทะเบียนการเพาะปลูก
+                  div.dropdown-divider
+                  a.dropdown-item(href='/produce/produceReport') REPORT : รายงานการลงทะเบียนเพาะปลูก
+            li.dropdown(class=(title === 'Audit Management') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span AUDIT
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/audit/1') AUDIT #1 : ตรวจสอบ ครั้งที่ 1
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/audit/2') AUDIT #2 : ตรวจสอบ ครั้งที่ 2
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/audit/3') AUDIT #3 : ตรวจสอบ ครั้งที่ 3
+                  div.dropdown-divider
+                  a.dropdown-item(href='/audit/report/reportsss') AUDIT REPORT : แสดงรายการตรวจสอบ
+            //- li.nav-item(class=(title === 'Information') ? 'active' : undefined)
+            //-   a.nav-link(href='/infomation') Information
+
+            li.dropdown(class=(title === 'Information') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span INFORMATION
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/information/general') GENERAL INFO : ข้อมูลพื้นฐาน
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/information/produce') PRODUCE INFO: ข้อมูลลงทะเบียนการเพาะปลูก
+                  //- div.dropdown-divider
+                  a.dropdown-item(href='/information/audit') AUDIT INFO: ข้อมูลตรวจสอบ
+                  div.dropdown-divider
+                  a.dropdown-item(href='/information/statistic') STATISTIC MEMBER: สถิติ รหัสสมาชิก
+                  a.dropdown-item(href='/information/statisticGroup') STATISTIC MEMBER BY GROUP : สถิติตามกลุ่ม
+
+
+
+            li.dropdown(class=(title === 'Report') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span REPORT
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/report/member-family') MEMBER-FAMILY REPORT : คนในครอบครัวสมาชิก
+                  a.dropdown-item(href='/report/member-area') MEMBER-AREA REPORT : แปลงเพาะปลูกสมาชิก
+                  a.dropdown-item(href='/report/plant') PLANT REPORT : รายการพันธุ์พืช
+                  a.dropdown-item(href='/report/product') PRODUCT REPORT : รายการผลผลิต
+                  
+
+
+            li.dropdown(class=(title === 'receive') ? 'active' : undefined).nav-item
+                a.dropdown-toggle.nav-link(data-toggle='dropdown', href='#')
+                  span RECEIVE
+                  i.caret
+                div.dropdown-menu
+                  a.dropdown-item(href='/receive/primary/0') PRIMARY CHECK : ตรวจสอบพื้นฐาน
+                  a.dropdown-item(href='/receive/primary/1') DATA ENTRY : คีย์ข้อมูล
+                  //- a.dropdown-item(href='/receive/weight') WEIGHT : ชั่งน้ำหนัก
+                  div.dropdown-divider
+                  a.dropdown-item(href='/receive/pay') RECEIVED & PAY : รับ - จ่ายเงิน
+                  
+
+        ul.nav.navbar-nav.ml-auto
+          if !user
+            li.nav-item(class=(title === 'Login') ? 'active' : undefined)
+              a.nav-link(href='/login') LOGIN
+            //- li.nav-item(class=(title === 'Create Account') ? 'active' : undefined)
+            //-   a.nav-link(href='/signup') Create Account
+          else
+            li.dropdown(class=(title === 'Account Management') ? 'active' : undefined).nav-item
+              a.dropdown-toggle.nav-link(href='#', data-toggle='dropdown')
+                if user.profile.picture
+                  img(src=user.profile.picture)
+                else
+                  img(src=user.gravatar(60))
+                span= user.profile.name || user.email || user.id
+                i.caret
+              div.dropdown-menu
+                a.dropdown-item(href='/account') My Info
+                div.dropdown-divider
+                a.dropdown-item(href='/contact') Contact
+                div.dropdown-divider
+                a.dropdown-item(href='/logout') LOG OUT

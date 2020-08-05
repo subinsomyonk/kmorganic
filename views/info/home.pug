@@ -1,0 +1,73 @@
+extends layout
+
+block content
+  //- script.
+  //-   $('.datepicker').datepicker({
+  //-     format: 'dd/mm/yyyy',
+  //-     todayBtn: true,
+  //-     language: 'th',             //เปลี่ยน label ต่างของ ปฏิทิน ให้เป็น ภาษาไทย   (ต้องใช้ไฟล์ bootstrap-datepicker.th.min.js นี้ด้วย)
+  //-     thaiyear: true              //Set เป็นปี พ.ศ.
+  //-   }).datepicker("setDate", "0");  //กำหนดเป็นวันปัจุบัน
+  h1.text-primary #{title}
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      h3.text-primary ตรวจสอบ ข้อมูลของสมาชิก    >>>>>>>>>>
+      p 
+      form(method='POST' action='/member/home')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-3.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText" placeholder="find with Member ID")
+        else
+          input(type="text" name="findText" id="findText" placeholder="find with Member ID")
+        button.col-md-3.btn.btn-primary(type='submit') ค้นหา
+    .col-md-6
+      h4.text-success คนในครอบครัว
+      p  FAMILY
+      p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      p
+        //- a.btn.btn-raised(href='#', role='button') View details »
+      
+  .row
+    .col-md-6
+      h4.text-success FOUND MEMBER ID
+      p  YYYYYYY
+      p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      if result
+        p=result.length
+        
+    .col-md-6
+      h4.text-success แปลงเพาะปลูก
+      p  AREA
+      p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        //- a.btn.btn-raised(href='#', role='button') View details »
+  .row
+    .col-md-6
+      p 1
+    .col-md-6
+      h4.text-success MEMBER INFORMATION
+      p  MEMBER INFO
+      p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        //- a.btn.btn-raised(href='#', role='button') View details »
+      //- .col-md-6
+      //-   h2 Heading
+      //-   p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+      //- <form action="/action_page.php">
+      //-   <label for="birthdaytime">Birthday (date and time):</label>
+      //-   <input type="date" id="birthdaytime" name="birthdaytime">
+      //-   <input type="submit">
+      //- </form>
+      //- p
+      //-   a.btn.btn-raised(href='#', role='button') View details »
+
+      //- <input id="inputdatepicker" class="datepicker" data-date-format="mm/dd/yyyy">
+    //- .col-md-6
+    //-   h2 Heading
+    //-   p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+    //-   p
+    //-     a.btn.btn-raised(href='#', role='button') View details »
+      //- <input type="date" id="dt" onchange="mydate1();" hidden/>
+      //- <input type="text" id="ndt"  onclick="mydate();" hidden />
+      //- <input type="button" Value="Date" onclick="mydate();" />

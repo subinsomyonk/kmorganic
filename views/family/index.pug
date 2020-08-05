@@ -1,0 +1,186 @@
+extends ../layout
+
+block content
+  script.
+    function myFunction(x,_id){
+      //- alert('click row '+x.rowIndex+',_id'+_id);
+      test(_id);
+      $('.bd-example-modal-lg').modal('show');
+    }
+    //confirm to delete record
+    function btnDel(){
+      let IDCARD = $('#IDCARD').val()
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      let okDel = confirm('ต้องการลบสมาชิกครอบครัว '+ IDCARD +' ออกจากระบบ')
+      if(okDel){
+        location.href = "/family/delete?_id="+_id+"&findText="+findText;
+      }
+    }
+    //Area Edit page
+    function btnEdit(){
+      let _id = $('#_id').html().trim()
+      let findText = $('#findText').val().trim()
+      location.href = "/family/edit/"+_id+"/"+findText;
+    }
+
+    //View the record of Area
+    function test(x, _id,IDCARD,firstName,lastName,gender,phone,notes,memberId,birthDate,statusId,createdAt,updatedAt){
+      let birthDates = new Date(birthDate);
+      let dd = birthDates.getDate();
+      let mm = birthDates.getMonth()+1;
+      let yyyy = birthDates.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let yyyymmdd = (yyyy+543)+'-'+mm+'-'+dd;
+
+      $('#_id').html(_id);
+      $('#IDCARD').val(IDCARD);
+      $('#firstName').val(firstName);
+      $('#lastName').val(lastName);
+      $('#gender').val(gender);
+      $('#genderShow').html(gender)
+      //- alert($('#genderShow').html())
+      $('#phone').val(phone);
+      $('#notes').val(notes);
+
+      $('#memberId').val(memberId);
+      $('#birthDate').val(yyyymmdd);
+
+      if(statusId==1){
+        $('#statusId').prop('checked', true);
+      }
+      else{
+        $('#statusId').prop('checked', false);
+      }
+      if(notes == 'undefined'){
+        $('#notes').html('');
+      }
+      else{
+        $('#notes').html(notes);
+      }
+      $('#createdAt').val(createdAt);
+      $('#updatedAt').val(updatedAt);
+
+      $('.bd-example-modal-lg').modal('show');
+    }
+
+  h1.text-primary #{title}
+    i.fas.fa-user-friends
+  p.lead.text-success #{caption}
+  hr
+  .row
+    .col-md-6
+      form(method='POST' action='/family')
+        input(name='_csrf', type='hidden', value=_csrf)
+        label.col-md-2.col-form-label.font-weight-bold.text-left.text-primary(for='findText') ค้นหา :
+        if(findText)
+          input(type="text" value=findText name="findText" id="findText")
+        else
+          input(type="text" name="findText" id="findText")
+        button.col-md-2.btn.btn-primary(type='submit') ค้นหา
+    .dol-md-6
+      if(findText)
+        a.btn.btn-success(href="/family/add?findText="+findText) เพิ่มคนในครอบครัว
+      else
+        a.btn.btn-success(href="/family/add?findText=") เพิ่มคนในครอบครัว
+  hr
+  .row
+    .col-md-12
+      if result
+        <div class="table-responsive">
+          <table id="dataTable" class="table table-hover bg-gray-800">
+            <thead>
+              <tr class="text-primary bg-dark">
+                  <th>ลำดับ.</th> 
+                  <th>ID CARD</th>
+                  <th>GENDER</th>
+                  <th>FIRST NAME</th>
+                  <th>LAST NAME</th>
+                  <th>PHONE</th>
+                  <th>BIRTHDATE</th>
+                  <th>MEMBER  ID</th>
+                  <th>STATUS</th>
+                  <th>NOTES</th>
+                  //- <th>Handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              - var ii=1 
+              each i in result
+                //- tr.text-success(onclick="test(this,\'"+i._id+"\')")
+                tr.text-success(onclick="test(this,\'"+i._id+"\',\'"+i.IDCARD+"\',\'"+i.firstName+"\',\'"+i.lastName+"\',\'"+i.gender+"\',\'"+i.phone+"\',\'"+i.notes+"\',\'"+i.memberId+"\',\'"+i.birthDate+"\',\'"+i.statusId+"\',\'"+i.createdAt+"\',\'"+i.updatedAt+"\');")
+
+                  td=ii++
+                  td=i.IDCARD
+                  td=i.gender
+                  td=i.firstName
+                  td=i.lastName
+                  td=i.phone
+                  td=(i.birthDate.getDate() < 10 ? '0'+i.birthDate.getDate(): i.birthDate.getDate())+'/'+(i.birthDate.getMonth() < 10 ? '0'+(i.birthDate.getMonth()+1): (i.birthDate.getMonth()+1))+'/'+(i.birthDate.getFullYear()+543)
+                  td=i.memberId 
+                  if(i.statusId)
+                    td ปกติ
+                  else
+                    td ยกเลิก
+                  td=i.notes
+                  //- td
+                  //-   xxx
+                  //- a(data-target='.bd-example-modal-lg', data-toggle='modal', href="#", onClick="test(\'"+i._id+"\',\'"+i.IDCARD+"\',\'"+i.firstName+"\',\'"+i.lastName+"\',\'"+i.gender+"\',\'"+i.phone+"\',\'"+i.notes+"\',\'"+i.memberId+"\',\'"+i.birthDate+"\',\'"+i.statusId+"\',\'"+i.createdAt+"\',\'"+i.updatedAt+"\');") แสดง
+            </tbody>
+          </table>
+        </div>
+
+    .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+      .modal-dialog.modal-lg
+        .modal-content
+          .modal-header.bg-dark
+            h3.text-success รายละเอียด ครอบครัวสมาชิก
+            span#_id(style="display:none") _id
+          .modal-body
+            form
+              .form-group
+                label.col-form-label.text-primary(for='IDCARD') ID CARD:
+                input#IDCARD.form-control.text-success(type='text' readOnly  placeholder="เลขที่บัตรประชาชน")
+              .form-group
+                label.col-form-label.text-primary(for='firstName') First Name:
+                input#firstName.form-control.text-success(type='text' readOnly  placeholder="ชื่อ")
+              .form-group
+                label.col-form-label.text-primary(for='lastName') Last Name:
+                input#lastName.form-control.text-success(type='text' readOnly placeholder="สกุล")
+              .form-group
+                label.col-form-label.text-primary(for='phone') Phone:
+                input#phone.form-control.text-success(type='text' readOnly placeholder="โทรศัพท์")
+
+
+              label.col-form-label.text-primary(for='gender') GENDER :
+              label#genderShow.col-form-label.text-success
+              .form-group
+                label.col-form-label.text-primary(for='birthDate') Birth Date:
+                input#birthDate.form-control.text-success(type='date' readOnly  placeholder="วันเกิด")
+              .form-group
+                label.col-form-label.text-primary(for='memberId') Member ID:
+                input#memberId.form-control.text-success(type='text' readOnly  placeholder="รหัสสมาชิก")
+              .form-group.custom-control.custom-checkbox
+                input#statusId.custom-control-input(type="checkbox" name="statusId" disabled)
+                label.custom-control-label.text-primary(for='statusId') สถานะ ปกติ
+              .form-group
+                label.col-form-label.text-primary(for='notes') Notes:
+                textarea#notes.form-control.text-success(name="notes" readOnly rows="3" placeholder="หมายเหตุ.")
+                //- input#notes.form-control.text-success(type='text' readOnly placeholder="หมายเหตุ")
+              .form-group
+                label.col-form-label.text-primary(for="createdAt") Created At :
+                input#createdAt.form-control.text-success(readOnly name="createdAt" placeholder="เวลาเริ่มสร้าง")
+              .form-group
+                label.col-form-label.text-primary(for="updatedAt") Updated At :
+                input#updatedAt.form-control.text-success(readOnly name="updatedAt" placeholder="เวลาปรับปรุงล่าสุด.")
+          .modal-footer
+            button.btn.btn-primary(type='button' onclick="btnEdit();") Edit : แก้ไข
+            button.btn.btn-danger(type='button' onclick="btnDel();") Delete :ลบ
+            button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+
+
+
+

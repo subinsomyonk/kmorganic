@@ -1,0 +1,572 @@
+extends ../layout
+
+block content
+  
+
+  h1.text-primary #{title} 
+    i.far.fa-registered
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-6
+      h4.text-warning  สมาชิก #{memberResult.memberId}
+        a(href="/produce/produceReport?yearName="+yearResult.yearName) ปีเพาะปลูก #{yearResult.yearName}
+      hr
+      form(method='POST' action='/produce/areaFindText')
+          input#_csrf(name='_csrf', type='hidden', value=_csrf)
+          input#_idYear(name='_idYear', type='hidden', value=yearResult._id)
+          input#_idMember(name='_idMember', type='hidden', value=memberResult._id)
+          input#findTextMemberId(name='findTextMemberId', type='hidden', value=findTextMemberId)
+          label.col-md-3.col-form-label.font-weight-bold.text-left.text-primary(for='findTextArea') ค้นหา แปลง :
+          if findTextArea
+            input(type="text" name="findTextArea" id="findTextArea" value=findTextArea)
+          else
+            input(type="text" name="findTextArea" id="findTextArea"  value='')
+          button.col-md-3.btn.btn-primary(type='submit') ค้นหา แปลง
+
+    .col-md-6
+      h5.text-primary ผลการค้นหาแปลงเพาะปลูก
+
+
+      if confirm
+        - let ii =0
+        .table-responsive
+          table#dataTable.table.table-hover.bg-gray-800
+            thead
+              tr.text-warning.bg-primary
+                th NO.
+                th AREA ID
+                th LOCATION
+                th SIZE
+                th HANDLE
+            tbody
+              each i,ii in areaResult
+                tr
+                  td= (ii+1)
+                  td
+                    a(data-target='.bd-example2-modal-lg', data-toggle='modal', href='#', onClick="clickMeInfo(\'"+ i._id+"\')")=  i.areaId                    
+                  td= i.areaName + ', ' + i.village+ ' '+i.subDistrict+' '+ i.district+' '+i.province
+                  td= i.size
+                  td.text-center
+                    a(data-target='.bd-example-modal-lg', data-toggle='modal', href="#", onClick="keyInAreaIdSize(\'"+i._id+"\',\'"+i.areaId+"\',\'"+i.areaName+"\',\'"+i.size+"\',\'"+ i.village +" "+ i.subDistrict+" "+ i.district+" "+i.province+"\');") เลือก
+            caption ค้นหาด้วย #{findTextArea} จำนวนที่พบ  #{areaResult.length} รายการ
+     
+    .col-md-6
+      hr
+      h5.text-primary เลขที่ปี 
+        a(data-target='.bd-example2-modal-lg', data-toggle='modal', href="#" onClick="onClickYearInfo(\'"+ yearResult.yearName +"\')")  #{yearResult.yearName}   
+        span สมาชิก 
+        a(data-target='.bd-example2-modal-lg', data-toggle='modal', href="#" onClick="onClickMemberInfo(\'"+ memberResult.memberId +"\')") #{memberResult.memberId} 
+        span ลงทะเบียนเพาะปลูก
+      if produceResult
+        - let totalRai = 0.00
+        .table-responsive
+          table#dataTable2.table.table-hover.bg-gray-800
+            thead
+              tr.bg-success.text-danger
+                th NO.
+                th AREA ID
+                th NAME
+                th PLANT
+                th SIZE ACT
+                th HANDLE
+            tbody
+              each i, ii in produceResult
+                - totalRai += i.sizeAction 
+                tr.text-success
+                  td
+                    a(data-target='.bd-example2-modal-lg', data-toggle='modal', href='#', onClick="clickMeInfo1(\'"+ i._id+"\')")   #{(ii+1)}                  
+                  td
+                    a(data-target='.bd-example2-modal-lg', data-toggle='modal', href='#', onClick="clickMeInfo0(\'"+ i.areaId+"\')")   #{(i.areaId)}
+                  td= i.areaName
+                  td= i.plantNameTh
+                  td.text-center= i.sizeAction
+                  td.text-center
+                    a(href='#' onClick="onClickRemove(\'"+i._id+"\',\'"+(ii+1)+"\')") เอาออก
+            caption จำนวน #{produceResult.length}  รายการ   #{totalRai} ไร่
+
+      //-   a.btn.btn-danger(href='#', role='button') View details »
+    .col-md-6
+      h5.text-primary Heading#4
+      //- p
+      //-   a.btn.btn-raised(href='#', role='button') View details................ »
+  
+
+      .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+        .modal-dialog.modal-lg
+          .modal-content
+            .modal-header.bg-dark
+              h3#headCaption.text-success ลงรายละเอียดในแปลงเพาะปลูก
+              span#yearResult_yearName #{yearResult.yearName}  
+              span#memberResult_memberId  #{memberResult.memberId}
+               
+            .modal-body#modalbody
+
+
+              if plantResult
+                table
+                  tr
+                    th  AREA ID :
+                    td 
+                      span#areaId.text-success(name="areaId")
+                  tr
+                    th  AREA NAME :
+                    td 
+                      span#areaName.text-success(name="areaName")
+                  tr
+                    th LOCATION :
+                    td 
+                      span#location.text-success(name="location")
+                  tr  
+                    th SIZE :
+                    td 
+                      span#size.text-success(name="size")
+                  tr  
+                    th PLANT NAME :
+                    td 
+                      .form-group
+                        select#plantNameTh(name="plantNameTh")
+                          each ii in plantResult
+                            option.text-success( value = ii.plantNameTh ) #{ii.plantNameTh}  
+                  tr  
+                    th SIZE ACTION :
+                    td 
+                      .form-group
+                        input#sizeAction.text-success(type="number" step="any" name="sizeAction" min="0.2" max="500" placeholder="0.20")
+                  tr  
+                    th NOTES :
+                    td 
+                      .form-group
+                        textarea#notes.text-success.form-control.text-success(rows=3 name="notes" placeholder="หมายเหตุ") 
+            .modal-footer
+              p#resultProcess.text-warning 
+              button.btn.btn-primary(type='button' onClick="btnEnter();") OK :: ตกลง
+              button.btn.btn-secondary(data-dismiss='modal', type='button' onClick="clickMeClose();") Close : ปิด
+
+      .modal.fade.bd-example2-modal-lg(role='dialog', aria-hidden='true', aria-labelledby='myLargeModalLabel', tabindex='-1')
+        .modal-dialog.modal-lg
+          .modal-content
+            .modal-header.bg-dark
+              h3#headCaption2.text-success รายละเอียด แปลงเพาะปลูก
+              span#_iddd(style="display:none")
+            .modal-body#modalbody2
+              p Not Found Data !
+            .modal-footer
+              button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+  script.
+    function produceYearNameReport(yearName){
+      // /produce/produceReport?yearName=yearName 
+      alert('produceYearNameReport('+yearName+')');
+
+    }
+    function onClickYearInfo(yearName){
+      let _id = $('#_idYear').val()
+      //app.get('/year/findByIdInfo', passportConfig.isAuthenticated, yearssController.getYearFindByIdInfo);
+      //- res.send({ 'confirm': 'success', data: result });
+      $.ajax('/year/findByIdInfo',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#headCaption2').html('รายละเอียดปีการเพาะปลูก');
+          $('#modalbody2').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+
+          if(okk==='success'){
+            let txtTable ='<table>';
+            
+            $(dat).each(function(i, val) {
+
+                txtTable +='<tr><th class="text-primary"> YEAR NAME : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.yearName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> CAPTION : </th>';
+                txtTable +='<th class="text-success">'+val.yearCaption+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> CREATED AT : </th>';
+                txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+                txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+                
+                txtTable +='</table>';
+                $('#modalbody2').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody2').html('Not Found Data ');
+          }
+        }
+      });
+    }
+    function onClickMemberInfo(memberId){
+      let _id = $('#_idMember').val();
+      $.ajax('/member/findByIdInfo',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody2').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> HOME NO : </th>';
+                txtTable +='<th class="text-success">'+val.homeNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> GROUP NO : </th>';
+                txtTable +='<th class="text-success">'+val.groupNo+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> VILLAGE : </th>';
+                txtTable +='<th class="text-success">'+val.village+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SUB DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.subDistrict+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.district+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PROVINCE : </th>';
+                txtTable +='<th class="text-success">'+val.province+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> POSTCODE : </th>';
+                txtTable +='<th class="text-success">'+val.postCode+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PHONE : </th>';
+                txtTable +='<th class="text-success">'+val.phone+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> REGISTER : </th>';
+                txtTable +='<th class="text-success">'+EngThaiDate(val.register)+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> TPYE MEMBER : </th>';
+                txtTable +='<th class="text-success">'+val.memberType+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> BOND : </th>';
+                txtTable +='<th class="text-success">'+val.shareHolder+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> IDCARD : </th>';
+                txtTable +='<th class="text-success">'+val.IDCARD+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> STATUS : </th>';
+                if(val.statusId == 1)
+                  txtTable +='<th class="text-success">ปกติ</th></tr>';
+                else
+                  txtTable +='<th class="text-success">ออก</th></tr>';
+                txtTable +='</table>';
+                $('#modalbody2').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody2').html('Not Found Data ');
+          }
+        }
+      });
+    }
+    function onClickRemove(_id,ii){  
+      let actionYesNo = confirm('Would You Remove The Item '+ii+' . OK / Cancel ? ')
+      if(actionYesNo){
+        let findTextMemberId = $('#findTextMemberId').val()
+        let _idYear = $('#_idYear').val();
+        let _idMember = $('#_idMember').val();
+        let findTextArea = $('#findTextArea').val();
+        $.ajax('/produce/deleteProduce',{
+          data:{
+            _id:_id,
+            findTextMemberId:findTextMemberId,
+            _idMember:_idMember,
+            _idYear:_idYear,
+            findTextArea:findTextArea
+            },
+          type:'get',
+          dataType: 'text',
+          beforeSend: function(){
+            console.log(findTextMemberId);
+            console.log(_idMember);
+            console.log(_idYear);
+            console.log(findTextArea);
+          },
+          error: function(){
+            alert('Error call /produce/deleteProduce');
+          },
+          success: function(result){
+            let data = $.parseJSON(result);
+            let confirm = data.confirm
+            if(confirm=='success'){
+              $('#findTextArea').val(data.findTextArea);
+              //- location.reload();
+              window.location.reload(true);
+            }
+            else{
+              alert('Failed For Remove Item, Let Admin To Know!');
+            }
+          }
+        });
+      }
+    }
+    //for change Eng YYYY-mm-dd to dd/mm/yyyy of Thai
+    function EngThaiDate(register){
+      let registers = new Date(register);
+      let dd = registers.getDate();
+      let mm = registers.getMonth()+1;
+      let yyyy = registers.getFullYear();
+      dd = (dd < 10 ? '0' : '') + dd;
+      mm = (mm < 10 ? '0' : '') + mm;
+      let ddmmyyyy = dd+'/'+mm+'/'+(yyyy+543);
+      return ddmmyyyy;
+    }  
+
+    //clickMeInfo1
+    function clickMeInfo1(_id){
+      $('_iddd').html(areaId);
+      $.ajax('/produce/findById',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody2').html('');
+        },
+        error: function(){
+          alert('Error call /area/areaFindById');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          $('#headCaption2').html('รายละเอียดเลขที่แปลงลงทะเบียนปลูก');
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> YEAR NAME : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.yearName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> AREA ID : </th>';
+                txtTable +='<th class="text-success">'+val.areaId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> AREA NAME : </th>';
+                txtTable +='<th class="text-success">'+val.areaName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> LOCATION : </th>';
+                txtTable +='<th class="text-success">'+val.location+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PLANT NAME : </th>';
+                txtTable +='<th class="text-success">'+val.plantNameTh+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SIZE ACTION : </th>';
+                txtTable +='<th class="text-success">'+val.sizeAction+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> CREATED AT: </th>';
+                txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+                txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+
+                txtTable +='<caption>รายละเอียดแปลงลงทะเบียนเพาะปลูก เลขที่ '+ val.yearName +' : '+val.areaId +' : '+ val.memberId+'</caption>';
+                txtTable +='</table>';
+                $('#modalbody2').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody2').html('Not Found Data ');
+          }
+        }
+      });
+    }
+
+    //areaFindByAreaId 
+    function clickMeInfo0(areaId){
+      $('_iddd').html(areaId);
+      $.ajax('/area/areaFindByAreaId',{
+        data:{areaId:areaId},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody2').html('');
+        },
+        error: function(){
+          alert('Error call /area/areaFindById');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          $('#headCaption2').html('รายละเอียดเลขที่แปลงเพาะปลูก');
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> AREA ID : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.areaId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> AREA NAME : </th>';
+                txtTable +='<th class="text-success">'+val.areaName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SIZE : </th>';
+                txtTable +='<th class="text-success">'+val.size+'</th></tr>';
+
+                txtTable +='<tr><th class="text-primary"> VILLAGE : </th>';
+                txtTable +='<th class="text-success">'+val.village+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SUB DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.subDistrict+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.district+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PROVINCE : </th>';
+                txtTable +='<th class="text-success">'+val.province+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> REGISTER : </th>';
+                txtTable +='<th class="text-success">'+EngThaiDate(val.register)+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> STATUS : </th>';
+                if(val.statusId == 1)
+                  txtTable +='<th class="text-success">ปกติ</th></tr>';
+                else
+                  txtTable +='<th class="text-success">ออก</th></tr>';
+                txtTable +='<tr><th class="text-primary"> CREATED AT: </th>';
+                txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+                txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+
+                txtTable +='<tr><th class="text-primary"> LATITUDE : </th>';
+                txtTable +='<th class="text-success">'+val.latitude+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> LONGITUDE : </th>';
+                txtTable +='<th class="text-success">'+val.longitude+'</th></tr>';
+                txtTable +='<caption>รายละเอียดแปลงเพาะปลูก เลขที่ '+ val.areaId+'</caption>';
+                txtTable +='</table>';
+                $('#modalbody2').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody2').html('Not Found Data ');
+          }
+        }
+      });
+    }
+
+    function clickMeInfo(_id){
+      
+      $('_iddd').html(_id);
+      $.ajax('/area/areaFindById',{
+        data:{_id:_id},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+          $('#modalbody2').html('');
+        },
+        error: function(){
+          alert('Error call /area/areaFindById');
+        },
+        success: function(result){
+          //- alert(result);
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          $('#headCaption2').html('รายละเอียดเลขที่แปลงเพาะปลูก');
+          if(okk==='success'){
+            let txtTable ='<table>';
+            $(dat).each(function(i, val) {
+                txtTable +='<tr><th class="text-primary"> AREA ID : </th>';
+                txtTable +='<th id="memberId" class="text-success">'+val.areaId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> AREA NAME : </th>';
+                txtTable +='<th class="text-success">'+val.areaName+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SIZE : </th>';
+                txtTable +='<th class="text-success">'+val.size+'</th></tr>';
+
+                txtTable +='<tr><th class="text-primary"> VILLAGE : </th>';
+                txtTable +='<th class="text-success">'+val.village+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> SUB DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.subDistrict+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> DISTRICT : </th>';
+                txtTable +='<th class="text-success">'+val.district+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> PROVINCE : </th>';
+                txtTable +='<th class="text-success">'+val.province+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> REGISTER : </th>';
+                txtTable +='<th class="text-success">'+EngThaiDate(val.register)+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+                txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> MEMBER ID : </th>';
+                txtTable +='<th class="text-success">'+val.memberId+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> STATUS : </th>';
+                if(val.statusId == 1)
+                  txtTable +='<th class="text-success">ปกติ</th></tr>';
+                else
+                  txtTable +='<th class="text-success">ออก</th></tr>';
+                txtTable +='<tr><th class="text-primary"> CREATED AT: </th>';
+                txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+                txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+
+                //latitude, longitude
+                txtTable +='<tr><th class="text-primary"> LATITUDE : </th>';
+                txtTable +='<th class="text-success">'+val.latitude+'</th></tr>';
+                txtTable +='<tr><th class="text-primary"> LONGITUDE : </th>';
+                txtTable +='<th class="text-success">'+val.longitude+'</th></tr>';
+                txtTable +='<caption>รายละเอียดแปลงเพาะปลูก เลขที่ '+ val.areaId+'</caption>';
+                txtTable +='</table>';
+                $('#modalbody2').html(txtTable);
+            });
+          }
+          else{
+            $('#modalbody2').html('Not Found Data ');
+          }
+        }
+      });
+    }
+    function clickMeClose(){
+      window.location.reload(true);
+      //- location.reload();
+    }
+    function keyInAreaIdSize(_idArea,areaId, areaName, size, location){
+      $('#areaId').html(areaId);
+      $('#areaName').html(areaName);
+      $('#size').html(size);  
+      $('#location').html(location);     
+      $("#sizeAction").prop('max',size);
+    }
+    function btnEnter(){
+      var maxSize = parseFloat($('#size').html());
+      var areaId = $('#areaId').html().trim();
+      var areaName= $('#areaName').html().trim();
+      var location = $('#location').html().trim();
+      var plantNameTh = $('#plantNameTh').val();
+      var yearName  = $('#yearResult_yearName').html();
+      var memberId = $('#memberResult_memberId').html();
+      var notes = $('#notes').val().trim();
+      var sizeAction = parseFloat($('#sizeAction').val());
+      var _csrf = $('#_csrf').val();
+      
+      $('#resultProcess').html('');
+      if(parseFloat($('#sizeAction').val()) !== 0.0 && parseFloat($('#sizeAction').val()) <= maxSize && plantNameTh !='' && parseFloat($('#sizeAction').val()) >= 0.00 ){
+        
+        $.ajax('../produce/registerProduce',{
+          data:{
+            yearName: yearName,
+            memberId: memberId,
+            areaId: areaId,
+            areaName: areaName,
+            location: location,
+            plantNameTh: plantNameTh,
+            sizeAction: sizeAction,
+            notes: notes,
+            size: maxSize
+          },
+          type:'get',
+          dataType: 'text',
+          beforeSend: function(){
+          },
+          error: function(){
+            alert('Error call ../produce/registerProduce');
+          },
+          success: function(result){
+            var obj = $.parseJSON(result);
+            $('#resultProcess').html(obj.confirm+'>>'+obj.notes);
+          }
+        });
+      }
+      else{
+        $('#resultProcess').html('Failed, Pls Check The Data ENtry! or Contact Admin!');
+      }
+    }

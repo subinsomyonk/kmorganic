@@ -1,0 +1,132 @@
+extends ../layout
+
+block content
+  script.
+    function showYearInfo(yearName){
+      //- alert(yearName);
+      $('.bd-example-modal-lg').modal('show');
+      test(yearName);
+    }
+
+    function test(yearName){
+
+      $.ajax('/year/findByYearName',{
+        data:{yearName:yearName},
+        type:'get',
+        dataType: 'text',
+        beforeSend: function(){
+
+          $('#modalbody').html('');
+        },
+        error: function(){
+          alert('Error');
+        },
+        success: function(result){
+          var data = $.parseJSON(result);
+          var okk = data.confirm;
+          var dat = data.data;
+          $('#headCaption').html('รายละเอียด เลขที่ปีเพาะปลก');
+          if(okk==='success'){
+            let txtTable ='<table>';
+            let yearName = null;
+            $(dat).each(function(i, val) {
+              txtTable +='<tr><th class="text-primary"> YEAR NAME : </th>';
+              txtTable +='<th id="memberId" class="text-success">'+val.yearName+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> CAPTION : </th>';
+              txtTable +='<th class="text-success">'+val.yearCaption+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> NOTES : </th>';
+              txtTable +='<th class="text-success">'+val.notes+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> CREATED AT : </th>';
+              txtTable +='<th class="text-success">'+val.createdAt+'</th></tr>';
+              txtTable +='<tr><th class="text-primary"> UPDATED AT : </th>';
+              txtTable +='<th class="text-success">'+val.updatedAt+'</th></tr>';
+              yearName = val.yearName;
+            });
+            txtTable +='<caption>รายละเอียด เลขที่ปีเพาะปลูก '+yearName+' </caption>';
+            txtTable +='</table>';
+            //- $('#yearName').html(yearName);
+            $('#modalbody').html(txtTable);
+          }
+        }
+      });
+    }
+
+  h1.text-primary #{title}
+    i.fas.fa-info-circle
+  p.text-success.lead #{caption}
+  hr
+  .row
+    .col-md-12
+      if resultYear
+        form(method='POST' action='/information/produce')
+          .form-group
+            input(name='_csrf', type='hidden', value=_csrf)
+            label(for="yearName") เลือกเลขที่ปี การเพาะปลูก:
+            select#yearName.form-control.col-md-2(name="yearName")
+              each i in resultYear
+                - let _idYear = i._id
+                option(value = i.yearName)   #{i.yearName}
+          button.col-md-2.btn.btn-success(type='submit') เลือก »
+  .row
+    .col-md-12 
+      .table-responsive
+        if resultProduceProduce && resultProduceProduce.length >0
+          - let indexMax =( minMaxSizeActionCount.length - 1)
+          table.table.table-hover.bg-gray-800
+            thead
+              tr.bg-primary.text-center
+                th(colspan="2") เลือกเลขที่ : 
+                  a.btn.btn-primary(href="#" onClick="showYearInfo(\'"+yearName+"\')", role="button") #{yearName}
+            tbody   
+              tr
+                th.text-primary สมาชิกลงทะเบียน น้อยสุด
+                td.text-success #{minMaxSizeActionCount[0].plantNameThSumSizeAction}  ไร่
+              tr
+                th.text-primary สมาชิกลงทะเบียน มากสุด 
+                td.text-success #{minMaxSizeActionCount[indexMax].plantNameThSumSizeAction}  ไร่
+              tr
+                th.text-primary จำนวนสมาชิก ลงทะเบียน
+                td.text-success #{resultProduceMemberId.length}  หมายเลข
+              tr
+                //- th.text-primary
+                th.text-success(colspan="2")
+                  table
+                    thead
+                      tr.bg-gray
+                        th.text-primary พันธุ์พืช>>
+                        each  i in resultProducePlant
+                          td.text-success #{i._id}
+                        th.text-center.text-primary รวม
+                    tbody
+                      tr
+                        th.text-primary จำนวนรายการ (รายการ)
+                        each  i in resultProducePlant
+                          td.text-center #{i.countRecord}
+                        th.text-primary.text-center #{resultProduceProduce[0].countRecord}
+                      tr
+                        th.text-primary จำนวนพืื้นที่เพาะปลูก (ไร่)
+                        each i in resultProducePlant
+                          td.text-center #{i.totalSizeAction}
+                        th.text-primary.text-center #{resultProduceProduce[0].totalSizeAction}
+
+
+
+
+
+
+      //- view yearName Information
+      .modal.fade.bd-example-modal-lg(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+        .modal-dialog.modal-lg
+          .modal-content
+            .modal-header.bg-dark
+              h3#headCaption.text-success รายละเอียด เลขที่ปีเพาะปลูก
+              //- span#_id(style="display:none")
+            .modal-body#modalbody
+              p modal body show
+
+            .modal-footer
+              button.btn.btn-secondary(data-dismiss='modal', type='button') Close : ปิด
+
+
+                    
+                    
